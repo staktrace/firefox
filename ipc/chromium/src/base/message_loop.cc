@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "base/thread_local.h"
 #include "mozilla/Atomics.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/MaybeLeakRefPtr.h"
 #include "mozilla/Mutex.h"
 #include "mozilla/ProfilerRunnable.h"
@@ -452,6 +453,9 @@ void MessageLoop::PostTask_Helper(already_AddRefed<nsIRunnable> task,
   // Warning: Don't try to short-circuit, and handle this thread's tasks more
   // directly, as it could starve handling of foreign threads.  Put every task
   // into this queue.
+
+  PROFILER_MARKER("MessageLoop::PostTask", OTHER, {}, FlowAndTriggerMarker,
+                  Flow::FromPointer(pending_task.task.get()));
 
   RefPtr<base::MessagePump> pump;
   {
