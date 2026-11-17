@@ -446,10 +446,18 @@ nsresult nsTimerImpl::InitCommon(const TimeDuration& aDelay, uint32_t aType,
 
   nsresult rv = gThreadWrapper.AddTimer(this, aProofOfLock);
   if (NS_SUCCEEDED(rv)) {
-    PROFILER_CAUSAL_TRIGGER("nsTimerImpl::Init", OTHER,
-                            TimerCausalId(mTimerSeq));
+    RecordCausalArm();
   }
   return rv;
+}
+
+void nsTimerImpl::RecordCausalArm() {
+  if (profiler_feature_active(ProfilerFeature::Flows)) {
+    mCausalArmTime = TimeStamp::Now();
+    mCausalArmThread = profiler_current_thread_id();
+  } else {
+    mCausalArmTime = TimeStamp();
+  }
 }
 
 nsresult nsTimerImpl::InitWithNamedFuncCallback(nsTimerCallbackFunc aFunc,
@@ -611,8 +619,7 @@ nsresult nsTimerImpl::SetDelay(uint32_t aDelay) {
   }
 
   if (reAdd && NS_SUCCEEDED(gThreadWrapper.AddTimer(this, lock))) {
-    PROFILER_CAUSAL_TRIGGER("nsTimerImpl::SetDelay", OTHER,
-                            TimerCausalId(mTimerSeq));
+    RecordCausalArm();
   }
 
   return NS_OK;
@@ -690,6 +697,8 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
   TimeStamp oldTimeout;
   Callback callbackDuringFire{UnknownCallback{}};
   RefPtr<nsTimer> timer;
+  TimeStamp causalArmTime;
+  ProfilerThreadId causalArmThread;
 
   {
     // Don't fire callbacks or release references while the mutex is locked.
@@ -718,6 +727,9 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
     oldType = mType;
     oldDelay = mDelay.ToMilliseconds();
     oldTimeout = mTimeout;
+    causalArmTime = mCausalArmTime;
+    causalArmThread = mCausalArmThread;
+    mCausalArmTime = TimeStamp();
   }
 
   AUTO_PROFILER_LABEL("nsTimerImpl::Fire", OTHER);
@@ -749,6 +761,14 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
   }
 
   {
+    if (!causalArmTime.IsNull() &&
+        profiler_feature_active(ProfilerFeature::Flows)) {
+      profiler_add_marker("nsTimerImpl::Arm", geckoprofiler::category::OTHER,
+                          MarkerOptions(MarkerThreadId(causalArmThread),
+                                        MarkerTiming::InstantAt(causalArmTime)),
+                          geckoprofiler::markers::CausalTriggerMarker{},
+                          TimerCausalId(aTimerSeq));
+    }
     AUTO_PROFILER_CAUSAL_EFFECT_MARKER("nsTimerImpl::Fire", OTHER,
                                        TimerCausalId(aTimerSeq));
     callbackDuringFire.match(
@@ -789,8 +809,7 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
       }
       MOZ_ASSERT(!mCallback.is<UnknownCallback>());
       if (NS_SUCCEEDED(gThreadWrapper.AddTimer(this, lock))) {
-        PROFILER_CAUSAL_TRIGGER("nsTimerImpl::Rearm", OTHER,
-                                TimerCausalId(mTimerSeq));
+        RecordCausalArm();
       }
     } else {
       // Non-repeating timer that has not been re-scheduled. Clear.

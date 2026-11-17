@@ -5,6 +5,7 @@
 #ifndef nsTimerImpl_h_
 #define nsTimerImpl_h_
 
+#include "mozilla/BaseProfilerUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Mutex.h"
 #include "mozilla/StaticMutex.h"
@@ -153,6 +154,15 @@ class nsTimerImpl {
   // arming thread without any bad race conditions.
   // Updated only after this timer has been removed from the timer thread.
   uint64_t mTimerSeq MOZ_GUARDED_BY(mMutex);
+
+  // When and on which thread the timer was last armed, recorded only while
+  // profiling with the Flows feature. The causal trigger marker for the
+  // arming is emitted lazily (backdated) when the timer fires, so that timers
+  // that are cancelled or re-armed before firing cost no markers.
+  mozilla::TimeStamp mCausalArmTime MOZ_GUARDED_BY(mMutex);
+  mozilla::baseprofiler::BaseProfilerThreadId mCausalArmThread
+      MOZ_GUARDED_BY(mMutex);
+  void RecordCausalArm() MOZ_REQUIRES(mMutex);
 
   mozilla::TimeDuration mDelay MOZ_GUARDED_BY(mMutex);
   // Never updated while in the TimerThread's timer list.  Only updated
