@@ -570,6 +570,7 @@ extern "C" {
     fn wr_notifier_new_frame_ready(window_id: WrWindowId, publish_id: FramePublishId, params: &FrameReadyParams);
     fn wr_notifier_external_event(window_id: WrWindowId, raw_event: usize);
     fn wr_schedule_render(window_id: WrWindowId, reasons: RenderReasons);
+    fn wr_profiler_scene_build_marker(window_id: WrWindowId, is_start: bool);
     // NOTE: This moves away from pipeline_info.
     fn wr_schedule_frame_after_scene_build(window_id: WrWindowId, pipeline_info: &mut WrPipelineInfo);
 
@@ -1068,6 +1069,7 @@ impl SceneBuilderHooks for APZCallbacks {
 
     fn pre_scene_build(&self) {
         gecko_profiler_start_marker("SceneBuilding", "");
+        unsafe { wr_profiler_scene_build_marker(self.window_id, true) }
     }
 
     fn pre_scene_swap(&self) {
@@ -1085,15 +1087,18 @@ impl SceneBuilderHooks for APZCallbacks {
         if schedule_frame {
             unsafe { wr_schedule_frame_after_scene_build(self.window_id, &mut info) }
         }
+        unsafe { wr_profiler_scene_build_marker(self.window_id, false) }
         gecko_profiler_end_marker("SceneBuilding", "");
     }
 
     fn post_resource_update(&self, _document_ids: &Vec<DocumentId>) {
         unsafe { wr_schedule_render(self.window_id, RenderReasons::POST_RESOURCE_UPDATES_HOOK) }
+        unsafe { wr_profiler_scene_build_marker(self.window_id, false) }
         gecko_profiler_end_marker("SceneBuilding", "");
     }
 
     fn post_empty_scene_build(&self) {
+        unsafe { wr_profiler_scene_build_marker(self.window_id, false) }
         gecko_profiler_end_marker("SceneBuilding", "");
     }
 

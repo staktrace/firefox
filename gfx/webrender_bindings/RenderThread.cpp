@@ -11,6 +11,7 @@
 #include "base/task.h"
 #include "gfxPlatform.h"
 #include "mozilla/BackgroundHangMonitor.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/Components.h"
 #include "mozilla/PerfStats.h"
 #include "mozilla/StaticPtr.h"
@@ -1885,6 +1886,18 @@ static void ScheduleFrameAfterSceneBuild(
   if (cbp) {
     cbp->ScheduleFrameAfterSceneBuild(aInfo);
   }
+}
+
+void wr_profiler_scene_build_marker(mozilla::wr::WrWindowId aWindowId,
+                                    bool aIsStart) {
+  if (!profiler_feature_active(ProfilerFeature::Flows)) {
+    return;
+  }
+  profiler_add_marker(
+      "SceneBuild", geckoprofiler::category::GRAPHICS,
+      aIsStart ? MarkerTiming::IntervalStart() : MarkerTiming::IntervalEnd(),
+      geckoprofiler::markers::CausalEffectMarker{},
+      mozilla::wr::SceneBuildCausalId(aWindowId));
 }
 
 void wr_schedule_frame_after_scene_build(

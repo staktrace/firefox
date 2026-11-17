@@ -14,6 +14,7 @@
 #include "GLTypes.h"
 #include "Units.h"
 #include "mozilla/AlreadyAddRefed.h"
+#include "mozilla/Flow.h"
 #include "mozilla/MozPromise.h"
 #include "mozilla/Range.h"
 #include "mozilla/TimeStamp.h"
@@ -66,6 +67,13 @@ class DisplayListBuilder;
 class RendererOGL;
 class RendererEvent;
 class WebRenderAPI;
+
+// The id linking the transactions sent to a window's scene builder (causal
+// triggers) to its next scene build (causal effect).
+inline Flow SceneBuildCausalId(WindowId aWindowId) {
+  return Flow::ProcessScoped(AsUint64(aWindowId) ^
+                             (uint64_t(0x57525342) << 32));
+}
 
 // This isn't part of WR's API, but we define it here to simplify layout's
 // logic and data plumbing.

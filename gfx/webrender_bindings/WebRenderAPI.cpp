@@ -7,6 +7,7 @@
 #include "GLContext.h"
 #include "TextDrawTarget.h"
 #include "malloc_decls.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/Logging.h"
 #include "mozilla/StaticPrefs_gfx.h"
 #include "mozilla/StaticPrefs_webgl.h"
@@ -468,6 +469,14 @@ void WebRenderAPI::UpdateDebugFlags(uint64_t aFlags) {
   wr_api_set_debug_flags(mDocHandle, wr::DebugFlags{aFlags});
 }
 
+static void MarkSceneBuildTrigger(wr::WindowId aWindowId, wr::Transaction* aTxn,
+                                  bool aUseSceneBuilderThread) {
+  if (aUseSceneBuilderThread && !wr_transaction_is_empty(aTxn)) {
+    PROFILER_CAUSAL_TRIGGER("WebRenderAPI::SendTransaction", GRAPHICS,
+                            SceneBuildCausalId(aWindowId));
+  }
+}
+
 void WebRenderAPI::SendTransaction(TransactionBuilder& aTxn) {
   if (mRootApi && mRootApi->mRendererDestroyed) {
     return;
@@ -492,6 +501,7 @@ void WebRenderAPI::SendTransaction(TransactionBuilder& aTxn) {
         WrTransactionEvent::Transaction(this, aTxn));
     HandleWrTransactionEvents(RemoteTextureWaitType::AsyncWait);
   } else {
+    MarkSceneBuildTrigger(mId, aTxn.Raw(), aTxn.UseSceneBuilderThread());
     wr_api_send_transaction(mDocHandle, aTxn.Raw(),
                             aTxn.UseSceneBuilderThread());
     if (aTxn.mRemoteTextureTxnScheduler) {
@@ -621,6 +631,8 @@ void WebRenderAPI::HandleWrTransactionEvents(RemoteTextureWaitType aType) {
     switch (front.mTag) {
       case WrTransactionEvent::Tag::Transaction:
         if (!rendererDestroyed) {
+          MarkSceneBuildTrigger(mId, front.RawTransaction(),
+                                front.UseSceneBuilderThread());
           wr_api_send_transaction(mDocHandle, front.RawTransaction(),
                                   front.UseSceneBuilderThread());
           if (front.GetTransactionBuilder()->mRemoteTextureTxnScheduler) {
