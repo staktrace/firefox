@@ -21,7 +21,8 @@
 namespace geckoprofiler::markers {
 
 // An instant marker that is the trigger for the given id.
-class CausalTriggerMarker : public mozilla::BaseMarkerType<CausalTriggerMarker> {
+class CausalTriggerMarker
+    : public mozilla::BaseMarkerType<CausalTriggerMarker> {
  public:
   static constexpr const char* Name = "CausalTriggerMarker";
 
@@ -156,22 +157,95 @@ class FlowAndTriggerMarker
   static constexpr MS::ETWMarkerGroup Group = MS::ETWMarkerGroup::Generic;
 
   // Callers pass a single Flow, which is written to both fields.
-  static void TranslateMarkerInputToSchema(void* aContext,
-                                           const Flow& aFlow) {
+  static void TranslateMarkerInputToSchema(void* aContext, const Flow& aFlow) {
     ETW::OutputMarkerSchema(aContext, FlowAndTriggerMarker{}, aFlow, aFlow);
   }
 
   static void StreamJSONMarkerData(
-      mozilla::baseprofiler::SpliceableJSONWriter& aWriter,
-      const Flow& aFlow) {
+      mozilla::baseprofiler::SpliceableJSONWriter& aWriter, const Flow& aFlow) {
     aWriter.FlowProperty("flow", aFlow);
     aWriter.FlowProperty("trigger", aFlow);
+  }
+};
+
+// Run-side marker for microtasks: terminates the legacy flow and is the effect
+// of the causal id (same id in both fields).
+class TerminatingFlowAndEffectMarker
+    : public mozilla::BaseMarkerType<TerminatingFlowAndEffectMarker> {
+ public:
+  static constexpr const char* Name = "TerminatingFlowAndEffectMarker";
+
+  using MS = mozilla::MarkerSchema;
+  static constexpr MS::PayloadField PayloadFields[] = {
+      {
+          "flow",
+          MS::InputType::Flow,
+          "Flow",
+          MS::Format::TerminatingFlow,
+      },
+      {
+          "effect",
+          MS::InputType::Flow,
+          "Effect",
+          MS::Format::CausalEffect,
+      }};
+
+  static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
+                                               MS::Location::MarkerTable};
+  static constexpr const char* AllLabels =
+      "{marker.name} (flow={marker.data.flow})";
+
+  static constexpr MS::ETWMarkerGroup Group = MS::ETWMarkerGroup::Generic;
+
+  static constexpr bool IsStackBased = true;
+
+  // Callers pass a single Flow, which is written to both fields.
+  static void TranslateMarkerInputToSchema(void* aContext, const Flow& aFlow) {
+    ETW::OutputMarkerSchema(aContext, TerminatingFlowAndEffectMarker{}, aFlow,
+                            aFlow);
+  }
+
+  static void StreamJSONMarkerData(
+      mozilla::baseprofiler::SpliceableJSONWriter& aWriter, const Flow& aFlow) {
+    aWriter.FlowProperty("flow", aFlow);
+    aWriter.FlowProperty("effect", aFlow);
   }
 };
 
 }  // namespace geckoprofiler::markers
 
 namespace mozilla {
+
+class MOZ_RAII AutoProfilerTerminatingFlowEffectMarker {
+ public:
+  AutoProfilerTerminatingFlowEffectMarker(
+      const char* aMarkerName, const mozilla::MarkerCategory& aCategory,
+      Flow aFlow)
+      : mMarkerName(aMarkerName), mCategory(aCategory), mFlow(aFlow) {
+    if (profiler_is_active_and_unpaused() &&
+        profiler_feature_active(ProfilerFeature::Flows)) {
+      mActive = true;
+      mOptions.Set(mozilla::MarkerTiming::InstantNow());
+    }
+  }
+
+  ~AutoProfilerTerminatingFlowEffectMarker() {
+    if (mActive && profiler_is_active_and_unpaused()) {
+      mOptions.TimingRef().SetIntervalEnd();
+      profiler_add_marker(
+          mozilla::ProfilerString8View::WrapNullTerminatedString(mMarkerName),
+          mCategory, std::move(mOptions),
+          ::geckoprofiler::markers::TerminatingFlowAndEffectMarker{}, mFlow);
+    }
+  }
+
+ public:
+  const char* mMarkerName;
+  mozilla::MarkerCategory mCategory;
+  mozilla::MarkerOptions mOptions;
+  Flow mFlow;
+  bool mActive = false;
+};
 
 class MOZ_RAII AutoProfilerCausalEffectMarker {
  public:

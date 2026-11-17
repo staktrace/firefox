@@ -20,6 +20,7 @@
 #include "jsfriendapi.h"
 #include "mozilla/Atomics.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSContext.h"
 #include "mozilla/CycleCollectedJSRuntime.h"
 #include "mozilla/FlowMarkers.h"
@@ -1050,7 +1051,8 @@ class WorkerJSContext final : public mozilla::CycleCollectedJSContext {
 
     JS::JobQueueMayNotBeEmpty(cx);
     PROFILER_MARKER_FLOW_ONLY("WorkerJSContext::DispatchToMicroTask", OTHER, {},
-                              FlowMarker, Flow::FromPointer(runnable.get()));
+                              FlowAndTriggerMarker,
+                              Flow::FromPointer(runnable.get()));
 
     // On worker threads, if the current global is the worker global, we use
     // the main micro task queue. Otherwise, the current global must be either

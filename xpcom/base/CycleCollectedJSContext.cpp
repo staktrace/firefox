@@ -694,7 +694,7 @@ void CycleCollectedJSContext::DispatchToMicroTask(
 
   JS::JobQueueMayNotBeEmpty(Context());
   PROFILER_MARKER_FLOW_ONLY("CycleCollectedJSContext::DispatchToMicroTask",
-                            OTHER, {}, FlowMarker,
+                            OTHER, {}, FlowAndTriggerMarker,
                             Flow::FromPointer(runnable.get()));
 
   LogMicroTaskRunnable::LogDispatch(runnable.get());
@@ -771,8 +771,9 @@ RunMicroTask(JSContext* aCx, CycleCollectedJSContext* aCCJS,
 
   if (RefPtr<MicroTaskRunnable> runnable =
           MaybeConsumeAsOwnedRunnable(aMicroTask)) {
-    AUTO_PROFILER_TERMINATING_FLOW_MARKER_FLOW_ONLY(
-        "RunMicroTaskRunnable", OTHER, Flow::FromPointer(runnable.get()));
+    mozilla::AutoProfilerTerminatingFlowEffectMarker flowMarker(
+        "RunMicroTaskRunnable", mozilla::baseprofiler::category::OTHER,
+        Flow::FromPointer(runnable.get()));
     AutoSlowOperation aso;
     runnable->Run(aso);
     return;
@@ -835,7 +836,7 @@ void ExtractIncumbentAndSchedulingState(
 
 static void MaybeGetFlowMarker(
     JS::Handle<MayConsumeMicroTask> aMicroTask,
-    mozilla::Maybe<AutoProfilerTerminatingFlowMarkerFlowOnly>&
+    mozilla::Maybe<AutoProfilerTerminatingFlowEffectMarker>&
         aTerminatingMarker) {
   // Avoid the overhead of getFlowId in the common case
   // of not having the profiler enabled.
@@ -1022,7 +1023,7 @@ void RunJSMicroTask(JSContext* aCx, CycleCollectedJSContext* aCCJS,
     }
 
     // Inform the profiler about the flow for this microtask.
-    mozilla::Maybe<AutoProfilerTerminatingFlowMarkerFlowOnly> terminatingMarker;
+    mozilla::Maybe<AutoProfilerTerminatingFlowEffectMarker> terminatingMarker;
     MaybeGetFlowMarker(aMicroTask, terminatingMarker);
 
     {

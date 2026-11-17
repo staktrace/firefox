@@ -11,6 +11,7 @@
 #include "js/Initialization.h"
 #include "js/friend/MicroTask.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSRuntime.h"
 #include "mozilla/EventQueue.h"
 #include "mozilla/FlowMarkers.h"
@@ -167,7 +168,7 @@ class WorkletJSContext final : public CycleCollectedJSContext {
     JS::JobQueueMayNotBeEmpty(cx);
 
     PROFILER_MARKER_FLOW_ONLY("WorkletJSContext::DispatchToMicroTask", OTHER,
-                              {}, FlowMarker,
+                              {}, FlowAndTriggerMarker,
                               Flow::FromPointer(runnable.get()));
     bool ret = mozilla::EnqueueMicroTask(cx, std::move(aRunnable));
     MOZ_RELEASE_ASSERT(ret);

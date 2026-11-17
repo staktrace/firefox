@@ -4,6 +4,7 @@
 
 #include "mozilla/ProfilerThreadRegistrationData.h"
 
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSContext.h"
 #include "mozilla/FlowMarkers.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -143,7 +144,7 @@ static void profiler_add_js_flow(mozilla::MarkerCategory aCategory,
   AUTO_PROFILER_STATS(js_flow);
   profiler_add_marker(
       mozilla::ProfilerString8View::WrapNullTerminatedString(aMarkerName),
-      aCategory, {}, ::geckoprofiler::markers::FlowMarker{},
+      aCategory, {}, ::geckoprofiler::markers::FlowAndTriggerMarker{},
       Flow::ProcessScoped(aFlowId));
 }
 
