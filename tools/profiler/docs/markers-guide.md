@@ -342,6 +342,25 @@ when one trigger wakes several consumers. Keep using `Flow` and `TerminatingFlow
 for object lifetimes; use causal markers only when the id is unique per unit of
 work.
 
+**Instrumented wake points.** Besides runnable, task and IPC handoffs:
+
+- Timers: trigger in `nsTimerImpl` whenever a timer is armed (`InitCommon`,
+  `SetDelay`, repeating re-arm in `Fire`); effect around the callback in
+  `nsTimerImpl::Fire`. The id is `Flow::ProcessScoped(mTimerSeq)`, which is a
+  process-wide counter that changes on every `Init`.
+- Sockets: trigger when `nsSocketTransport::InitiateSocket` starts a
+  non-blocking connect and when `nsSocketOutputStream::Write` writes bytes;
+  effect around `OnSocketReady` in the socket transport service poll loop. The
+  id is `Flow::FromPointer` of the `nsASocketHandler*`; fan-in is expected.
+- Refresh driver: trigger in `nsRefreshDriver::EnsureTimerStarted`; effect
+  around the body of `nsRefreshDriver::Tick` once it decides to do work. The id
+  is `Flow::FromPointer` of the refresh driver; fan-in is expected.
+- Microtasks: JS promise jobs trigger through the JS `markFlow` hook
+  (`JS::EnqueueJob`) and `MicroTaskRunnable` dispatch sites trigger through
+  `FlowAndTriggerMarker`; both run as a `TerminatingFlowAndEffectMarker`
+  interval (`RunMicroTask`, `RunMicroTaskRunnable`) with the same id. The JS
+  terminating-flow hook is not called by the engine and is unchanged.
+
 ### Text Markers
 
 Text markers are very common, they carry an extra text as a fourth argument, in addition to
