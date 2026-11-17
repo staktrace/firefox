@@ -292,6 +292,56 @@ merged yet. In the meantime, loading the Firefox profile in
 flow markers in a panel at the bottom. The frontend work is ongoing in
 <https://github.com/firefox-devtools/profiler/pull/5190>.
 
+### Causal markers
+
+Causal markers are a stricter kind of link than flows, meant for critical path
+analysis: "this work ran because of that earlier event". Include
+`mozilla/CausalMarkers.h`. The id is a `Flow`, and is serialized like a flow id.
+There are three field formats:
+
+- `causal-trigger-id` (`MarkerSchema::Format::CausalTrigger`): this marker is a
+  trigger for id X.
+- `causal-effect-id` (`CausalEffect`): this marker is an effect of id X. It
+  consumes the open triggers of X.
+- `causal-shared-effect-id` (`CausalSharedEffect`): an effect of X that does
+  not consume the open triggers (broadcast fan-out).
+
+A marker can carry a causal field and a `flow-id` field at the same time. The
+existing runnable, task, and IPC markers do this, with the same id in both.
+
+```cpp
+// Trigger, at the point where work is requested.
+PROFILER_CAUSAL_TRIGGER("Timer armed", OTHER, Flow::FromPointer(this));
+
+// Effect, an interval covering the work that ran because of it.
+AUTO_PROFILER_CAUSAL_EFFECT_MARKER("Timer fired", OTHER, Flow::FromPointer(this));
+```
+
+All of these are only recorded when the `Flows` feature is active.
+
+**Pairing rule.** For each id X, take every trigger and effect in the whole
+profile (all threads and processes), ordered by marker start time; on a tie,
+triggers come first. Keep a list `open(X)` of triggers. A trigger is appended
+to `open(X)`. An effect has all of `open(X)` as its causes, in time order, and
+then clears `open(X)`. A shared effect has all of `open(X)` as its causes and
+does not clear it. An effect with an empty `open(X)` has an unknown cause; it is
+never paired with an older, already consumed trigger. The primary cause is the
+earliest trigger; the others are alternate causes (fan-in). Prefer ids that
+are unique per unit of work, so that there is exactly one cause, and use
+fan-in only where work is truly coalesced.
+
+**Nesting rule.** Causal links are cross-thread hops. The same-thread hop is
+inferred from time containment: a trigger at time `t` on thread `T` was emitted
+by the innermost interval marker on `T` containing `t` that has an effect
+field. Effect markers should therefore be interval markers covering the work
+that ran because of X, and `IsStackBased` in the schema.
+
+**When to use which.** Use a trigger where work is requested or handed off, and
+an effect around the work that runs as a result. Use the shared effect only
+when one trigger wakes several consumers. Keep using `Flow` and `TerminatingFlow`
+for object lifetimes; use causal markers only when the id is unique per unit of
+work.
+
 ### Text Markers
 
 Text markers are very common, they carry an extra text as a fourth argument, in addition to
