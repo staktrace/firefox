@@ -5,6 +5,7 @@
 #ifndef nsASocketHandler_h_
 #define nsASocketHandler_h_
 
+#include "mozilla/CausalPending.h"
 #include "mozilla/OriginAttributes.h"
 #include "nsError.h"
 #include "nsINetAddr.h"
@@ -24,6 +25,10 @@ class nsASocketHandler : public nsISupports {
   // thread.
   //
   nsresult mCondition{NS_OK};
+
+  // Whether a causal trigger (connect or write) has been recorded for the
+  // next socket-ready notification. See mozilla/CausalMarkers.h.
+  mozilla::CausalPending mCausalPending;
 
   //
   // these flags can only be modified on the socket transport thread.

@@ -627,8 +627,8 @@ nsSocketOutputStream::Write(const char* buf, uint32_t count,
   // only send this notification if we have indeed written some data.
   // see bug 196827 for an example of why this is important.
   if ((n > 0)) {
-    PROFILER_CAUSAL_TRIGGER(
-        "nsSocketOutputStream::Write", NETWORK,
+    PROFILER_CAUSAL_TRIGGER_ONCE(
+        mTransport->mCausalPending, "nsSocketOutputStream::Write", NETWORK,
         Flow::FromPointer(static_cast<nsASocketHandler*>(mTransport)));
     mTransport->SendStatus(NS_NET_STATUS_SENDING_TO);
   }
@@ -1704,8 +1704,8 @@ nsresult nsSocketTransport::InitiateSocket() {
     //
     if ((PR_WOULD_BLOCK_ERROR == code) || (PR_IN_PROGRESS_ERROR == code)) {
       mPollFlags = (PR_POLL_EXCEPT | PR_POLL_WRITE);
-      PROFILER_CAUSAL_TRIGGER(
-          "nsSocketTransport::InitiateSocket", NETWORK,
+      PROFILER_CAUSAL_TRIGGER_ONCE(
+          mCausalPending, "nsSocketTransport::InitiateSocket", NETWORK,
           Flow::FromPointer(static_cast<nsASocketHandler*>(this)));
       //
       // If the socket is already connected, then return success...

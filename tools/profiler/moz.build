@@ -250,6 +250,7 @@ EXPORTS += [
 
 EXPORTS.mozilla += [
     "public/CausalMarkers.h",
+    "public/CausalPending.h",
     "public/ChromeProfilerCounter.h",
     "public/FlowMarkers.h",
     "public/ProfileBufferEntrySerializationGeckoExtensions.h",

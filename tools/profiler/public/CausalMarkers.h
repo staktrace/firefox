@@ -13,6 +13,7 @@
 // because of X". All of these are gated on ProfilerFeature::Flows.
 
 #include "mozilla/BaseProfilerMarkers.h"
+#include "mozilla/CausalPending.h"
 #include "mozilla/ProfilerLabels.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "nsString.h"
@@ -251,9 +252,11 @@ class MOZ_RAII AutoProfilerCausalEffectMarker {
  public:
   AutoProfilerCausalEffectMarker(const char* aMarkerName,
                                  const mozilla::MarkerCategory& aCategory,
-                                 Flow aFlow)
+                                 Flow aFlow, CausalPending* aPending = nullptr)
       : mMarkerName(aMarkerName), mCategory(aCategory), mFlow(aFlow) {
-    if (profiler_is_active_and_unpaused() &&
+    // TakeEffect() must run even when the profiler is inactive.
+    if ((!aPending || aPending->TakeEffect()) &&
+        profiler_is_active_and_unpaused() &&
         profiler_feature_active(ProfilerFeature::Flows)) {
       mActive = true;
       mOptions.Set(mozilla::MarkerTiming::InstantNow());
@@ -282,10 +285,30 @@ class MOZ_RAII AutoProfilerCausalEffectMarker {
   ::mozilla::AutoProfilerCausalEffectMarker PROFILER_RAII(                 \
       markerName, ::mozilla::baseprofiler::category::categoryName, flow)
 
+// Like AUTO_PROFILER_CAUSAL_EFFECT_MARKER, for a coalesced id deduplicated
+// with a CausalPending: the effect is only recorded if a trigger is open.
+#define AUTO_PROFILER_CAUSAL_EFFECT_MARKER_IF_PENDING(pending, markerName, \
+                                                      categoryName, flow)  \
+  ::mozilla::AutoProfilerCausalEffectMarker PROFILER_RAII(                 \
+      markerName, ::mozilla::baseprofiler::category::categoryName, flow,   \
+      &(pending))
+
 // Record an instant trigger marker for `flow` (only with the Flows feature).
 #define PROFILER_CAUSAL_TRIGGER(markerName, categoryName, flow)                \
   do {                                                                         \
     if (profiler_feature_active(ProfilerFeature::Flows)) {                     \
+      profiler_add_marker(markerName, ::geckoprofiler::category::categoryName, \
+                          {}, ::geckoprofiler::markers::CausalTriggerMarker{}, \
+                          flow);                                               \
+    }                                                                          \
+  } while (false)
+
+// Like PROFILER_CAUSAL_TRIGGER, for a coalesced id deduplicated with a
+// CausalPending: only the first trigger since the last effect is recorded.
+#define PROFILER_CAUSAL_TRIGGER_ONCE(pending, markerName, categoryName, flow)  \
+  do {                                                                         \
+    if (profiler_feature_active(ProfilerFeature::Flows) &&                     \
+        (pending).MarkTrigger()) {                                             \
       profiler_add_marker(markerName, ::geckoprofiler::category::categoryName, \
                           {}, ::geckoprofiler::markers::CausalTriggerMarker{}, \
                           flow);                                               \

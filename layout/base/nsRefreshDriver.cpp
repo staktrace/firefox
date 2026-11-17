@@ -1737,8 +1737,9 @@ void nsRefreshDriver::EnsureTimerStarted(EnsureTimerStartedFlags aFlags) {
     return;
   }
 
-  PROFILER_CAUSAL_TRIGGER("nsRefreshDriver::EnsureTimerStarted", GRAPHICS,
-                          Flow::FromPointer(this));
+  PROFILER_CAUSAL_TRIGGER_ONCE(mCausalTickPending,
+                               "nsRefreshDriver::EnsureTimerStarted", GRAPHICS,
+                               Flow::FromPointer(this));
 
   if (!mRefreshTimerStartedCause) {
     mRefreshTimerStartedCause = profiler_capture_backtrace();
@@ -2381,8 +2382,9 @@ void nsRefreshDriver::Tick(VsyncId aId, TimeStamp aNowTime,
   }
 
   AUTO_PROFILER_LABEL_RELEVANT_FOR_JS("RefreshDriver tick", LAYOUT);
-  AUTO_PROFILER_CAUSAL_EFFECT_MARKER("nsRefreshDriver::Tick", GRAPHICS,
-                                     Flow::FromPointer(this));
+  AUTO_PROFILER_CAUSAL_EFFECT_MARKER_IF_PENDING(
+      mCausalTickPending, "nsRefreshDriver::Tick", GRAPHICS,
+      Flow::FromPointer(this));
 
   nsAutoCString profilerStr;
   if (profiler_thread_is_being_profiled_for_markers()) {

@@ -1462,14 +1462,16 @@ nsresult nsSocketTransportService::DoPollIteration() {
       SocketContext& s = mActiveList[i];
       if (n > 0 && desc.out_flags != 0) {
         s.DisengageTimeout();
-        AUTO_PROFILER_CAUSAL_EFFECT_MARKER(
+        AUTO_PROFILER_CAUSAL_EFFECT_MARKER_IF_PENDING(
+            s.mHandler->mCausalPending,
             "nsSocketTransportService::OnSocketReady", NETWORK,
             Flow::FromPointer(s.mHandler.get()));
         s.mHandler->OnSocketReady(desc.fd, desc.out_flags);
       } else if (s.IsTimedOut(now)) {
         SOCKET_LOG(("socket %p timed out", s.mHandler.get()));
         s.DisengageTimeout();
-        AUTO_PROFILER_CAUSAL_EFFECT_MARKER(
+        AUTO_PROFILER_CAUSAL_EFFECT_MARKER_IF_PENDING(
+            s.mHandler->mCausalPending,
             "nsSocketTransportService::OnSocketReady", NETWORK,
             Flow::FromPointer(s.mHandler.get()));
         s.mHandler->OnSocketReady(desc.fd, -1);

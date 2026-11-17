@@ -13,6 +13,7 @@
 #include "GeckoProfiler.h"  // for ProfileChunkedBuffer
 #include "LayersTypes.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/CausalPending.h"
 #include "mozilla/FlushType.h"
 #include "mozilla/Maybe.h"
 #include "mozilla/RenderingPhase.h"
@@ -478,6 +479,8 @@ class nsRefreshDriver final : public mozilla::layers::TransactionIdAllocator,
   mozilla::RefreshDriverTimer* mActiveTimer;
   RefPtr<mozilla::RefreshDriverTimer> mOwnTimer;
   mozilla::UniquePtr<mozilla::ProfileChunkedBuffer> mRefreshTimerStartedCause;
+  // Whether a causal trigger for the next tick has been recorded.
+  mozilla::CausalPending mCausalTickPending;
 
   // nsPresContext passed in constructor and unset in Disconnect.
   mozilla::WeakPtr<nsPresContext> mPresContext;
