@@ -10,6 +10,7 @@
 
 #include "TimerThread.h"
 #include "mozilla/Atomics.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/IntegerPrintfMacros.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Mutex.h"
@@ -45,6 +46,14 @@ using mozilla::TimeStamp;
 // - to determine the order if the timeout values are equal.
 // - to distinguish generations of the same timer
 static Atomic<uint64_t, MemoryOrdering::Relaxed> sLastTimerSeq{0};
+
+// The id linking a timer's arming (causal trigger) to its firing (causal
+// effect). Timer sequence numbers are small per-process counters, and so are
+// the ids other subsystems (e.g. JS promise jobs) pass to
+// Flow::ProcessScoped, so tag ours to keep the two from colliding.
+static inline Flow TimerCausalId(uint64_t aTimerSeq) {
+  return Flow::ProcessScoped(aTimerSeq ^ (uint64_t(0x54494d45) << 32));
+}
 
 // Holds the timer thread and manages all interactions with it
 // under a locked mutex. This wrapper is not destroyed until after
@@ -435,7 +444,12 @@ nsresult nsTimerImpl::InitCommon(const TimeDuration& aDelay, uint32_t aType,
   mTimeout = TimeStamp::Now() + mDelay;
   mName = aName;
 
-  return gThreadWrapper.AddTimer(this, aProofOfLock);
+  nsresult rv = gThreadWrapper.AddTimer(this, aProofOfLock);
+  if (NS_SUCCEEDED(rv)) {
+    PROFILER_CAUSAL_TRIGGER("nsTimerImpl::Init", OTHER,
+                            TimerCausalId(mTimerSeq));
+  }
+  return rv;
 }
 
 nsresult nsTimerImpl::InitWithNamedFuncCallback(nsTimerCallbackFunc aFunc,
@@ -596,8 +610,9 @@ nsresult nsTimerImpl::SetDelay(uint32_t aDelay) {
     reAdd = true;
   }
 
-  if (reAdd) {
-    gThreadWrapper.AddTimer(this, lock);
+  if (reAdd && NS_SUCCEEDED(gThreadWrapper.AddTimer(this, lock))) {
+    PROFILER_CAUSAL_TRIGGER("nsTimerImpl::SetDelay", OTHER,
+                            TimerCausalId(mTimerSeq));
   }
 
   return NS_OK;
@@ -733,14 +748,18 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
     LogFiring(callbackDuringFire, oldType, oldDelay);
   }
 
-  callbackDuringFire.match(
-      [](const UnknownCallback&) {},
-      [&](const InterfaceCallback& i) { i->Notify(timer); },
-      [&](const ObserverCallback& o) {
-        o->Observe(timer, NS_TIMER_CALLBACK_TOPIC, nullptr);
-      },
-      [&](const FuncCallback& f) { f.mFunc(timer, f.mClosure); },
-      [&](const ClosureCallback& c) { c(timer); });
+  {
+    AUTO_PROFILER_CAUSAL_EFFECT_MARKER("nsTimerImpl::Fire", OTHER,
+                                       TimerCausalId(aTimerSeq));
+    callbackDuringFire.match(
+        [](const UnknownCallback&) {},
+        [&](const InterfaceCallback& i) { i->Notify(timer); },
+        [&](const ObserverCallback& o) {
+          o->Observe(timer, NS_TIMER_CALLBACK_TOPIC, nullptr);
+        },
+        [&](const FuncCallback& f) { f.mFunc(timer, f.mClosure); },
+        [&](const ClosureCallback& c) { c(timer); });
+  }
 
   MOZ_LOG(GetTimerLog(), LogLevel::Debug,
           ("[this=%p] Took %fms to fire timer callback\n", this,
@@ -769,7 +788,10 @@ void nsTimerImpl::Fire(uint64_t aTimerSeq) {
         }
       }
       MOZ_ASSERT(!mCallback.is<UnknownCallback>());
-      gThreadWrapper.AddTimer(this, lock);
+      if (NS_SUCCEEDED(gThreadWrapper.AddTimer(this, lock))) {
+        PROFILER_CAUSAL_TRIGGER("nsTimerImpl::Rearm", OTHER,
+                                TimerCausalId(mTimerSeq));
+      }
     } else {
       // Non-repeating timer that has not been re-scheduled. Clear.
       // XXX(nika): Other callsites seem to go to some effort to avoid
