@@ -9,6 +9,7 @@
 #include "GeckoProfiler.h"
 #include "mozilla/AppShutdown.h"
 #include "mozilla/BackgroundHangMonitor.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/EventQueue.h"
 #include "mozilla/FlowMarkers.h"
 #include "mozilla/Hal.h"
@@ -102,7 +103,9 @@ struct TaskMarker : BaseMarkerType<TaskMarker> {
           "Task",
           MS::Format::TerminatingFlow,
       },
-      {"priorityName", MS::InputType::CString, "Priority Name"}};
+      {"priorityName", MS::InputType::CString, "Priority Name"},
+      // Same id as "task" (dual emission).
+      {"effect", MS::InputType::Uint64, "Effect", MS::Format::CausalEffect}};
 
   static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
                                                MS::Location::MarkerTable};
@@ -120,7 +123,7 @@ struct TaskMarker : BaseMarkerType<TaskMarker> {
                                            const nsCString& aName,
                                            uint32_t aPriority, Flow aFlow) {
     ETW::OutputMarkerSchema(aContext, TaskMarker{}, aName, aPriority, aFlow,
-                            ProfilerStringView(""));
+                            ProfilerStringView(""), aFlow);
   }
 
   static void StreamJSONMarkerData(baseprofiler::SpliceableJSONWriter& aWriter,
@@ -139,6 +142,7 @@ struct TaskMarker : BaseMarkerType<TaskMarker> {
       aWriter.StringProperty("priorityName", "Invalid Value");
     }
     aWriter.FlowProperty("task", aFlow);
+    aWriter.FlowProperty("effect", aFlow);
   }
 };
 
@@ -165,7 +169,9 @@ struct IncompleteTaskMarker : BaseMarkerType<IncompleteTaskMarker> {
           "Task",
           MS::Format::Flow,
       },
-      {"priorityName", MS::InputType::CString, "Priority Name"}};
+      {"priorityName", MS::InputType::CString, "Priority Name"},
+      // Same id as "task" (dual emission).
+      {"effect", MS::InputType::Uint64, "Effect", MS::Format::CausalEffect}};
 
   static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
                                                MS::Location::MarkerTable};
@@ -183,7 +189,7 @@ struct IncompleteTaskMarker : BaseMarkerType<IncompleteTaskMarker> {
                                            const nsCString& aName,
                                            uint32_t aPriority, Flow aFlow) {
     ETW::OutputMarkerSchema(aContext, IncompleteTaskMarker{}, aName, aPriority,
-                            aFlow, ProfilerStringView(""));
+                            aFlow, ProfilerStringView(""), aFlow);
   }
 
   static void StreamJSONMarkerData(baseprofiler::SpliceableJSONWriter& aWriter,
@@ -202,6 +208,7 @@ struct IncompleteTaskMarker : BaseMarkerType<IncompleteTaskMarker> {
       aWriter.StringProperty("priorityName", "Invalid Value");
     }
     aWriter.FlowProperty("task", aFlow);
+    aWriter.FlowProperty("effect", aFlow);
   }
 };
 
@@ -571,7 +578,7 @@ void TaskController::AddTask(already_AddRefed<Task> aTask) {
   PROFILER_MARKER("TaskController::AddTask", OTHER,
                   {MarkerStack::MaybeCapture(
                       profiler_feature_active(ProfilerFeature::Flows))},
-                  FlowMarker, Flow::FromPointer(task.get()));
+                  FlowAndTriggerMarker, Flow::FromPointer(task.get()));
 
   std::pair<std::set<RefPtr<Task>, Task::PriorityCompare>::iterator, bool>
       insertion;

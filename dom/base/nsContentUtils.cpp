@@ -72,6 +72,7 @@
 #include "mozilla/BloomFilter.h"
 #include "mozilla/CORSMode.h"
 #include "mozilla/CallState.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CheckedInt.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/Components.h"
@@ -7890,8 +7891,8 @@ void nsContentUtils::AddScriptRunner(already_AddRefed<nsIRunnable> aRunnable) {
   }
 
   if (sScriptBlockerCount) {
-    PROFILER_MARKER("nsContentUtils::AddScriptRunner", OTHER, {}, FlowMarker,
-                    Flow::FromPointer(runnable.get()));
+    PROFILER_MARKER("nsContentUtils::AddScriptRunner", OTHER, {},
+                    FlowAndTriggerMarker, Flow::FromPointer(runnable.get()));
     sBlockedScriptRunners->AppendElement(runnable.forget());
     return;
   }

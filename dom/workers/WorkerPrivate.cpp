@@ -30,6 +30,7 @@
 #include "js/loader/ModuleLoaderBase.h"
 #include "mozilla/AntiTrackingUtils.h"
 #include "mozilla/BasePrincipal.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSContext.h"
 #include "mozilla/ExtensionPolicyService.h"
 #include "mozilla/Mutex.h"
@@ -1618,7 +1619,7 @@ nsresult WorkerPrivate::DispatchLockHeld(
       PROFILER_MARKER("WorkerPrivate::DispatchLockHeld", OTHER,
                       {MarkerStack::MaybeCapture(
                           profiler_feature_active(ProfilerFeature::Flows))},
-                      FlowMarker, Flow::FromPointer(runnable.get()));
+                      FlowAndTriggerMarker, Flow::FromPointer(runnable.get()));
       mPreStartRunnables.AppendElement(workerThreadRunnable);
       return NS_OK;
     }
@@ -1651,7 +1652,7 @@ nsresult WorkerPrivate::DispatchLockHeld(
       PROFILER_MARKER("WorkerPrivate::DispatchLockHeld", OTHER,
                       {MarkerStack::MaybeCapture(
                           profiler_feature_active(ProfilerFeature::Flows))},
-                      FlowMarker, Flow::FromPointer(runnable.get()));
+                      FlowAndTriggerMarker, Flow::FromPointer(runnable.get()));
       mPreStartRunnables.AppendElement(workerThreadRunnable);
     }
 

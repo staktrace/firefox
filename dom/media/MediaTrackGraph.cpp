@@ -36,6 +36,7 @@
 #include "VideoUtils.h"
 #include "mozilla/AbstractThread.h"
 #include "mozilla/AppShutdown.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSRuntime.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_dom.h"
@@ -4354,7 +4355,7 @@ MediaTrackGraphImpl::DispatchDirectTask(already_AddRefed<nsIRunnable> aTask) {
   MOZ_ASSERT(OnGraphThread());
   nsCOMPtr task = aTask;
   PROFILER_MARKER("MediaTrackGraphImpl::DispatchDirectTask", OTHER,
-                  {MarkerStack::Capture()}, FlowMarker,
+                  {MarkerStack::Capture()}, FlowAndTriggerMarker,
                   Flow::FromPointer(task.get()));
   mDirectMessages.AppendElement(task.forget());
   return NS_OK;

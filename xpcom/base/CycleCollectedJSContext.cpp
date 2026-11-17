@@ -15,6 +15,7 @@
 #include "jsapi.h"
 #include "mozilla/AsyncEventDispatcher.h"
 #include "mozilla/AutoRestore.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/CycleCollectedJSRuntime.h"
 #include "mozilla/DebuggerOnGCRunnable.h"
 #include "mozilla/FlowMarkers.h"
@@ -630,7 +631,7 @@ void CycleCollectedJSContext::RunInStableState(
   MOZ_ASSERT(mJSContext);
   nsCOMPtr<nsIRunnable> runnable = std::move(aRunnable);
   PROFILER_MARKER("CycleCollectedJSContext::RunInStableState", OTHER, {},
-                  FlowMarker, Flow::FromPointer(runnable.get()));
+                  FlowAndTriggerMarker, Flow::FromPointer(runnable.get()));
   mStableStateEvents.AppendElement(std::move(runnable));
 }
 

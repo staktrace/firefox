@@ -940,9 +940,12 @@ bool MessageChannel::ShouldDeferMessage(const Message& aMsg) {
          aMsg.transaction_id() != CurrentNestedInsideSyncTransaction();
 }
 
-class IPCFlowMarker : public BaseMarkerType<IPCFlowMarker> {
+// The send side of an IPC message is a causal trigger and the receive side is
+// a causal effect, both with the same id as the legacy flow. They need two
+// schemas because the causal field has a different format on each side.
+class IPCFlowTriggerMarker : public BaseMarkerType<IPCFlowTriggerMarker> {
  public:
-  static constexpr const char* Name = "IPCFlowMarker";
+  static constexpr const char* Name = "IPCFlowTriggerMarker";
 
   using MS = MarkerSchema;
   static constexpr MS::PayloadField PayloadFields[] = {
@@ -957,6 +960,12 @@ class IPCFlowMarker : public BaseMarkerType<IPCFlowMarker> {
           MS::InputType::Uint64,
           "Flow",
           MS::Format::Flow,
+      },
+      {
+          "trigger",
+          MS::InputType::Uint64,
+          "Trigger",
+          MS::Format::CausalTrigger,
       }};
 
   static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
@@ -969,6 +978,16 @@ class IPCFlowMarker : public BaseMarkerType<IPCFlowMarker> {
 
   static constexpr bool IsStackBased = true;
 
+  static void TranslateMarkerInputToSchema(void* aContext,
+                                           IPC::Message::msgid_t aMessageType,
+                                           Flow aFlow) {
+    ETW::OutputMarkerSchema(
+        aContext, IPCFlowTriggerMarker{},
+        mozilla::ProfilerString8View::WrapNullTerminatedString(
+            IPC::StringFromIPCMessageType(aMessageType)),
+        aFlow, aFlow);
+  }
+
   static void StreamJSONMarkerData(
       mozilla::baseprofiler::SpliceableJSONWriter& aWriter,
       IPC::Message::msgid_t aMessageType, Flow aFlow) {
@@ -976,6 +995,63 @@ class IPCFlowMarker : public BaseMarkerType<IPCFlowMarker> {
         "name",
         mozilla::MakeStringSpan(IPC::StringFromIPCMessageType(aMessageType)));
     aWriter.FlowProperty("flow", aFlow);
+    aWriter.FlowProperty("trigger", aFlow);
+  }
+};
+
+class IPCFlowEffectMarker : public BaseMarkerType<IPCFlowEffectMarker> {
+ public:
+  static constexpr const char* Name = "IPCFlowEffectMarker";
+
+  using MS = MarkerSchema;
+  static constexpr MS::PayloadField PayloadFields[] = {
+      {
+          "name",
+          MS::InputType::CString,
+          "Details",
+          MS::Format::String,
+      },
+      {
+          "flow",
+          MS::InputType::Uint64,
+          "Flow",
+          MS::Format::Flow,
+      },
+      {
+          "effect",
+          MS::InputType::Uint64,
+          "Effect",
+          MS::Format::CausalEffect,
+      }};
+
+  static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
+                                               MS::Location::MarkerTable};
+  static constexpr const char* TableLabel =
+      "{marker.data.name}(flow={marker.data.flow})";
+  static constexpr const char* ChartLabel = "{marker.name}";
+
+  static constexpr MS::ETWMarkerGroup Group = MS::ETWMarkerGroup::Generic;
+
+  static constexpr bool IsStackBased = true;
+
+  static void TranslateMarkerInputToSchema(void* aContext,
+                                           IPC::Message::msgid_t aMessageType,
+                                           Flow aFlow) {
+    ETW::OutputMarkerSchema(
+        aContext, IPCFlowEffectMarker{},
+        mozilla::ProfilerString8View::WrapNullTerminatedString(
+            IPC::StringFromIPCMessageType(aMessageType)),
+        aFlow, aFlow);
+  }
+
+  static void StreamJSONMarkerData(
+      mozilla::baseprofiler::SpliceableJSONWriter& aWriter,
+      IPC::Message::msgid_t aMessageType, Flow aFlow) {
+    aWriter.StringProperty(
+        "name",
+        mozilla::MakeStringSpan(IPC::StringFromIPCMessageType(aMessageType)));
+    aWriter.FlowProperty("flow", aFlow);
+    aWriter.FlowProperty("effect", aFlow);
   }
 };
 
@@ -1077,7 +1153,8 @@ void MessageChannel::OnMessageReceivedFromLink(UniquePtr<Message> aMsg) {
       if (!options.IsTimingUnspecified()) {
         options.TimingRef().SetIntervalEnd();
         profiler_add_marker("IPCDispatch", baseprofiler::category::OTHER,
-                            std::move(options), IPCFlowMarker{}, type, flow);
+                            std::move(options), IPCFlowEffectMarker{}, type,
+                            flow);
       }
     }
     msgid_t type;
@@ -2324,7 +2401,7 @@ void MessageChannel::AddProfilerMarker(const IPC::Message& aMessage,
       auto flow = Flow::Global(aMessage.seqno() ^
                                LossyNarrowChannelId(mMessageChannelId));
       profiler_add_marker("IPC", baseprofiler::category::OTHER,
-                          MarkerTiming::InstantNow(), IPCFlowMarker{},
+                          MarkerTiming::InstantNow(), IPCFlowTriggerMarker{},
                           aMessage.type(), flow);
     }
   }

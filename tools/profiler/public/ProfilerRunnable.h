@@ -48,6 +48,14 @@ struct RunnableMarker : BaseMarkerType<RunnableMarker> {
           "Runnable",
           MS::Format::TerminatingFlow,
       },
+      // Same id as "runnable" (dual emission), see "Causal markers" in the
+      // markers guide.
+      {
+          "effect",
+          MS::InputType::Uint64,
+          "Effect",
+          MS::Format::CausalEffect,
+      },
   };
 
   static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
@@ -63,13 +71,14 @@ struct RunnableMarker : BaseMarkerType<RunnableMarker> {
 
   static void TranslateMarkerInputToSchema(void* aContext,
                                            const nsCString& aName, Flow aFlow) {
-    ETW::OutputMarkerSchema(aContext, RunnableMarker{}, aName, aFlow);
+    ETW::OutputMarkerSchema(aContext, RunnableMarker{}, aName, aFlow, aFlow);
   }
 
   static void StreamJSONMarkerData(baseprofiler::SpliceableJSONWriter& aWriter,
                                    const nsCString& aName, Flow aFlow) {
     aWriter.StringProperty("name", aName);
     aWriter.FlowProperty("runnable", aFlow);
+    aWriter.FlowProperty("effect", aFlow);
   }
 };
 

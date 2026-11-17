@@ -8,6 +8,7 @@
 #include "InputTaskManager.h"
 #include "TaskController.h"
 #include "VsyncTaskManager.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/FlowMarkers.h"
 #include "nsIRunnable.h"
 
@@ -66,7 +67,7 @@ void EventQueueInternal<ItemsPerPage>::PutEvent(
   PROFILER_MARKER("EventQueueInternal::PutEvent", OTHER,
                   {MarkerStack::MaybeCapture(
                       profiler_feature_active(ProfilerFeature::Flows))},
-                  FlowMarker, Flow::FromPointer(event.get()));
+                  FlowAndTriggerMarker, Flow::FromPointer(event.get()));
 
   mQueue.Push(std::move(event));
 }

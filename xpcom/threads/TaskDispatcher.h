@@ -8,6 +8,7 @@
 #include <queue>
 
 #include "mozilla/AbstractThread.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/FlowMarkers.h"
 #include "mozilla/Maybe.h"
 #include "mozilla/ProfilerRunnable.h"
@@ -30,7 +31,7 @@ class SimpleTaskQueue {
     }
     nsCOMPtr<nsIRunnable> runnable(aRunnable);
     PROFILER_MARKER("SimpleTaskQueue::AddTask", OTHER, {MarkerStack::Capture()},
-                    FlowMarker, Flow::FromPointer(runnable.get()));
+                    FlowAndTriggerMarker, Flow::FromPointer(runnable.get()));
     mTasks->push(std::move(runnable));
   }
 

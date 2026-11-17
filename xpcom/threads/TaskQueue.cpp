@@ -4,6 +4,7 @@
 
 #include "mozilla/TaskQueue.h"
 
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/FlowMarkers.h"
 #include "mozilla/ProfilerRunnable.h"
 #include "nsIEventTarget.h"
@@ -114,7 +115,7 @@ nsresult TaskQueue::DispatchLocked(nsCOMPtr<nsIRunnable>& aRunnable,
   PROFILER_MARKER("TaskQueue::DispatchLocked", OTHER,
                   {MarkerStack::MaybeCapture(
                       profiler_feature_active(ProfilerFeature::Flows))},
-                  FlowMarker, Flow::FromPointer(aRunnable.get()));
+                  FlowAndTriggerMarker, Flow::FromPointer(aRunnable.get()));
   LogRunnable::LogDispatch(aRunnable);
   mTasks.EmplaceBack(TaskStruct{std::move(aRunnable), aFlags});
 
