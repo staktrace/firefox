@@ -8,9 +8,11 @@
 #include "CacheLog.h"
 #include "CacheObserver.h"
 #include "GeckoProfiler.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/EventQueue.h"
 #include "mozilla/IOInterposer.h"
 #include "mozilla/ProfilerLabels.h"
+#include "mozilla/ProfilerRunnable.h"
 #include "mozilla/ThreadEventQueue.h"
 #include "nsIRunnable.h"
 #include "nsISupportsImpl.h"
@@ -215,6 +217,9 @@ nsresult CacheIOThread::DispatchInternal(
   if (NS_WARN_IF(!runnable)) return NS_ERROR_NULL_POINTER;
 
   mMonitor.AssertCurrentThreadOwns();
+
+  PROFILER_MARKER("CacheIOThread::Dispatch", OTHER, {}, FlowAndTriggerMarker,
+                  Flow::FromPointer(runnable.get()));
 
   ++mQueueLength[aLevel];
   mEventQueue[aLevel].AppendElement(runnable.forget());
@@ -436,7 +441,10 @@ void CacheIOThread::LoopOneLevel(uint32_t aLevel) {
 
       LogRunnable::Run log(events[index].get());
 
-      events[index]->Run();
+      {
+        AUTO_PROFILE_FOLLOWING_RUNNABLE(events[index]);
+        events[index]->Run();
+      }
 
       MOZ_ASSERT(mNativeThreadHandle);
 
