@@ -47,14 +47,6 @@ using mozilla::TimeStamp;
 // - to distinguish generations of the same timer
 static Atomic<uint64_t, MemoryOrdering::Relaxed> sLastTimerSeq{0};
 
-// The id linking a timer's arming (causal trigger) to its firing (causal
-// effect). Timer sequence numbers are small per-process counters, and so are
-// the ids other subsystems (e.g. JS promise jobs) pass to
-// Flow::ProcessScoped, so tag ours to keep the two from colliding.
-static inline Flow TimerCausalId(uint64_t aTimerSeq) {
-  return Flow::ProcessScoped(aTimerSeq ^ (uint64_t(0x54494d45) << 32));
-}
-
 // Holds the timer thread and manages all interactions with it
 // under a locked mutex. This wrapper is not destroyed until after
 // nsThreadManager shutdown to ensure we don't UAF during an offthread access to

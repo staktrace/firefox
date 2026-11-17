@@ -6,6 +6,7 @@
 #define nsTimerImpl_h_
 
 #include "mozilla/BaseProfilerUtils.h"
+#include "mozilla/Flow.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Mutex.h"
 #include "mozilla/StaticMutex.h"
@@ -32,6 +33,14 @@ class nsTimer;
 
 namespace mozilla {
 class LogModule;
+}
+
+// The id linking a timer's arming (causal trigger) to its firing (causal
+// effect). Timer sequence numbers are small per-process counters, and so are
+// the ids other subsystems (e.g. JS promise jobs) pass to
+// Flow::ProcessScoped, so tag ours to keep the two from colliding.
+inline Flow TimerCausalId(uint64_t aTimerSeq) {
+  return Flow::ProcessScoped(aTimerSeq ^ (uint64_t(0x54494d45) << 32));
 }
 
 // TimerThread, nsTimerEvent, and nsTimer have references to these. nsTimer has

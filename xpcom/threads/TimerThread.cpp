@@ -6,6 +6,7 @@
 
 #include "GeckoProfiler.h"
 #include "mozilla/ArenaAllocator.h"
+#include "mozilla/CausalMarkers.h"
 #include "mozilla/ChaosMode.h"
 #include "mozilla/OperatorNewExtensions.h"
 #include "mozilla/Services.h"
@@ -1155,6 +1156,8 @@ void TimerThread::PostTimerEvent(Entry& aPostMe) {
     // Ensure references are released while we're unlocked.
     nsCOMPtr<nsIEventTarget> target = lockedTargetPtr.forget();
     RefPtr<nsTimerEvent> event = lockedEventPtr.forget();
+    AUTO_PROFILER_CAUSAL_SHARED_EFFECT_MARKER(
+        "TimerThread::PostTimerEvent", OTHER, TimerCausalId(aPostMe.mTimerSeq));
     // If we fail we have no way to report an error, but fallible dispatch
     // will take care of releasing our event and timer.
     target->Dispatch(event.forget(), NS_DISPATCH_FALLIBLE);

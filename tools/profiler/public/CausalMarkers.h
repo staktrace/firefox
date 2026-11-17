@@ -96,6 +96,31 @@ class CausalEffectMarker : public mozilla::BaseMarkerType<CausalEffectMarker> {
   static constexpr bool IsStackBased = true;
 };
 
+// An effect marker that does not consume the open triggers of its id: for an
+// intermediate step whose id has a later, consuming effect.
+class CausalSharedEffectMarker
+    : public mozilla::BaseMarkerType<CausalSharedEffectMarker> {
+ public:
+  static constexpr const char* Name = "CausalSharedEffectMarker";
+
+  using MS = mozilla::MarkerSchema;
+  static constexpr MS::PayloadField PayloadFields[] = {{
+      "effect",
+      MS::InputType::Flow,
+      "Effect",
+      MS::Format::CausalSharedEffect,
+  }};
+
+  static constexpr MS::Location Locations[] = {MS::Location::MarkerChart,
+                                               MS::Location::MarkerTable};
+  static constexpr const char* AllLabels =
+      "{marker.name} (effect={marker.data.effect})";
+
+  static constexpr MS::ETWMarkerGroup Group = MS::ETWMarkerGroup::Generic;
+
+  static constexpr bool IsStackBased = true;
+};
+
 class CausalEffectTextMarker
     : public mozilla::BaseMarkerType<CausalEffectTextMarker> {
  public:
@@ -252,8 +277,12 @@ class MOZ_RAII AutoProfilerCausalEffectMarker {
  public:
   AutoProfilerCausalEffectMarker(const char* aMarkerName,
                                  const mozilla::MarkerCategory& aCategory,
-                                 Flow aFlow, CausalPending* aPending = nullptr)
-      : mMarkerName(aMarkerName), mCategory(aCategory), mFlow(aFlow) {
+                                 Flow aFlow, CausalPending* aPending = nullptr,
+                                 bool aShared = false)
+      : mMarkerName(aMarkerName),
+        mCategory(aCategory),
+        mFlow(aFlow),
+        mShared(aShared) {
     // TakeEffect() must run even when the profiler is inactive.
     if ((!aPending || aPending->TakeEffect()) &&
         profiler_is_active_and_unpaused() &&
@@ -266,10 +295,17 @@ class MOZ_RAII AutoProfilerCausalEffectMarker {
   ~AutoProfilerCausalEffectMarker() {
     if (mActive && profiler_is_active_and_unpaused()) {
       mOptions.TimingRef().SetIntervalEnd();
-      profiler_add_marker(
-          mozilla::ProfilerString8View::WrapNullTerminatedString(mMarkerName),
-          mCategory, std::move(mOptions),
-          ::geckoprofiler::markers::CausalEffectMarker{}, mFlow);
+      auto name =
+          mozilla::ProfilerString8View::WrapNullTerminatedString(mMarkerName);
+      if (mShared) {
+        profiler_add_marker(
+            name, mCategory, std::move(mOptions),
+            ::geckoprofiler::markers::CausalSharedEffectMarker{}, mFlow);
+      } else {
+        profiler_add_marker(name, mCategory, std::move(mOptions),
+                            ::geckoprofiler::markers::CausalEffectMarker{},
+                            mFlow);
+      }
     }
   }
 
@@ -278,12 +314,20 @@ class MOZ_RAII AutoProfilerCausalEffectMarker {
   mozilla::MarkerCategory mCategory;
   mozilla::MarkerOptions mOptions;
   Flow mFlow;
+  bool mShared;
   bool mActive = false;
 };
 
 #define AUTO_PROFILER_CAUSAL_EFFECT_MARKER(markerName, categoryName, flow) \
   ::mozilla::AutoProfilerCausalEffectMarker PROFILER_RAII(                 \
       markerName, ::mozilla::baseprofiler::category::categoryName, flow)
+
+// Like AUTO_PROFILER_CAUSAL_EFFECT_MARKER, without consuming the open triggers.
+#define AUTO_PROFILER_CAUSAL_SHARED_EFFECT_MARKER(markerName, categoryName, \
+                                                  flow)                     \
+  ::mozilla::AutoProfilerCausalEffectMarker PROFILER_RAII(                  \
+      markerName, ::mozilla::baseprofiler::category::categoryName, flow,    \
+      nullptr, true)
 
 // Like AUTO_PROFILER_CAUSAL_EFFECT_MARKER, for a coalesced id deduplicated
 // with a CausalPending: the effect is only recorded if a trigger is open.
