@@ -513,7 +513,7 @@ mInternalHeader.mNext</panel_attributes>
     <panel_attributes>UniqueJSONStrings
 --
 -mStringTableWriter: SpliceableChunkedJSONWriter
--mStringHashToIndexMap: HashMap&lt;HashNumber, uint32_t&gt;
+-mStringToIndexMap: HashMap&lt;std::string, uint32_t&gt;
 --
 +SpliceStringTableElements(SpliceableJSONWriter&amp;)
 +WriteProperty(JSONWriter&amp;, aName: const char*, aStr: const char*)

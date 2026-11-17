@@ -31,13 +31,13 @@ UniqueJSONStrings::UniqueJSONStrings(FailureLatch& aFailureLatch,
   }
 
   mStringTableWriter.StartBareList();
-  uint32_t count = aOther.mStringHashToIndexMap.count();
+  uint32_t count = aOther.mStringToIndexMap.count();
   if (count != 0) {
-    if (!mStringHashToIndexMap.reserve(count)) {
+    if (!mStringToIndexMap.reserve(count)) {
       ClearAndSetFailure("Cannot reserve UniqueJSONStrings map storage");
       return;
     }
-    auto iter = aOther.mStringHashToIndexMap.iter();
+    auto iter = aOther.mStringToIndexMap.iter();
     for (auto&& [unusedIndex, progressLogger] :
          aProgressLogger.CreateLoopSubLoggersFromTo(
              10_pc, 90_pc, count, "Copying unique strings...")) {
@@ -45,8 +45,7 @@ UniqueJSONStrings::UniqueJSONStrings(FailureLatch& aFailureLatch,
       if (iter.done()) {
         break;
       }
-      mStringHashToIndexMap.putNewInfallible(iter.get().key(),
-                                             iter.get().value());
+      mStringToIndexMap.putNewInfallible(iter.get().key(), iter.get().value());
       iter.next();
     }
     aProgressLogger.SetLocalProgress(90_pc, "Copied unique strings");
@@ -68,7 +67,7 @@ void UniqueJSONStrings::SpliceStringTableElements(
 
 void UniqueJSONStrings::ClearAndSetFailure(std::string aFailure) {
   mStringTableWriter.SetFailure(std::move(aFailure));
-  mStringHashToIndexMap.clear();
+  mStringToIndexMap.clear();
 }
 
 Maybe<uint32_t> UniqueJSONStrings::GetOrAddIndex(const Span<const char>& aStr) {
@@ -76,15 +75,15 @@ Maybe<uint32_t> UniqueJSONStrings::GetOrAddIndex(const Span<const char>& aStr) {
     return Nothing{};
   }
 
-  uint32_t count = mStringHashToIndexMap.count();
-  HashNumber hash = HashString(aStr.data(), aStr.size());
-  auto entry = mStringHashToIndexMap.lookupForAdd(hash);
+  uint32_t count = mStringToIndexMap.count();
+  std::string_view str(aStr.data(), aStr.size());
+  auto entry = mStringToIndexMap.lookupForAdd(str);
   if (entry) {
     MOZ_ASSERT(entry->value() < count);
     return Some(entry->value());
   }
 
-  if (!mStringHashToIndexMap.add(entry, hash, count)) {
+  if (!mStringToIndexMap.add(entry, std::string(str), count)) {
     ClearAndSetFailure("OOM in UniqueJSONStrings::GetOrAddIndex adding a map");
     return Nothing{};
   }

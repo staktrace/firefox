@@ -18,6 +18,7 @@
 
 #include <functional>
 #include <ostream>
+#include <string>
 #include <string_view>
 #include <stdint.h>
 
@@ -595,8 +596,20 @@ class UniqueJSONStrings final : public FailureLatch {
   // Otherwise add it to the list and return the new index.
   MFBT_API Maybe<uint32_t> GetOrAddIndex(const Span<const char>& aStr);
 
+  // Keyed by the string itself: two different strings can have the same hash.
+  struct StringHasher {
+    using Key = std::string;
+    using Lookup = std::string_view;
+    static HashNumber hash(const Lookup& aLookup) {
+      return HashString(aLookup.data(), aLookup.size());
+    }
+    static bool match(const Key& aKey, const Lookup& aLookup) {
+      return std::string_view(aKey) == aLookup;
+    }
+  };
+
   SpliceableChunkedJSONWriter mStringTableWriter;
-  HashMap<HashNumber, uint32_t> mStringHashToIndexMap;
+  HashMap<std::string, uint32_t, StringHasher> mStringToIndexMap;
 };
 
 void SpliceableJSONWriter::UniqueStringProperty(const Span<const char>& aName,

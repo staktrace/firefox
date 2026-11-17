@@ -4382,6 +4382,17 @@ void TestUniqueJSONStrings() {
       },
       "0,1,0", R"("string0","string1")");
 
+  // Two different strings with the same HashString() value.
+  MOZ_RELEASE_ASSERT(mozilla::HashString("fa20e3cb027543320") ==
+                     mozilla::HashString("fa20e3cb027e23320"));
+  VerifyUniqueStringContents(
+      [](SCJW& aWriter, UJS& aUniqueStrings) {
+        aUniqueStrings.WriteElement(aWriter, "fa20e3cb027543320");
+        aUniqueStrings.WriteElement(aWriter, "fa20e3cb027e23320");
+        aUniqueStrings.WriteElement(aWriter, "fa20e3cb027543320");
+      },
+      "0,1,0", R"("fa20e3cb027543320","fa20e3cb027e23320")");
+
   // Mix some object properties, for coverage.
   VerifyUniqueStringContents(
       [](SCJW& aWriter, UJS& aUniqueStrings) {
