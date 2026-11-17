@@ -359,6 +359,12 @@ Span<const char> MarkerSchema::FormatToStringSpan(
       return mozilla::MakeStringSpan("flow-id");
     case Format::TerminatingFlow:
       return mozilla::MakeStringSpan("terminating-flow-id");
+    case Format::CausalTrigger:
+      return mozilla::MakeStringSpan("causal-trigger-id");
+    case Format::CausalEffect:
+      return mozilla::MakeStringSpan("causal-effect-id");
+    case Format::CausalSharedEffect:
+      return mozilla::MakeStringSpan("causal-shared-effect-id");
     default:
       MOZ_CRASH("Unexpected Format enum");
       return {};

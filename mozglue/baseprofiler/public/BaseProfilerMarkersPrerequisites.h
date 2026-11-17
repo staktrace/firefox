@@ -852,7 +852,18 @@ class MarkerSchema {
     // A terminating flow ends a flow of a particular id and allows that id
     // to be reused again. It often makes sense for destructors to create
     // a marker with a field of this type.
-    TerminatingFlow
+    TerminatingFlow,
+    // Causal links, see "Causal markers" in the markers guide. All three are
+    // serialized exactly like Flow (a 64-bit id as a hex string in the
+    // unique-string table).
+    // A trigger: this marker made work with the given id necessary.
+    CausalTrigger,
+    // An effect: this marker is work that ran because of the given id. It
+    // consumes all currently open triggers of that id.
+    CausalEffect,
+    // Like CausalEffect, but does not consume open triggers (broadcast
+    // fan-out).
+    CausalSharedEffect
   };
 
   template <typename T>
