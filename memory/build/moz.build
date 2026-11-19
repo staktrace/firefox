@@ -76,6 +76,12 @@ elif CONFIG["MOZ_ALT_ALLOCATOR"] == "mimalloc":
         "-Wno-sign-compare",
     ]
     LOCAL_INCLUDES += ["/memory/mimalloc/include"]
+elif CONFIG["MOZ_ALT_ALLOCATOR"] == "snmalloc":
+    SOURCES["alt/snmalloc_glue.cpp"].flags += [
+        "-DNDEBUG",
+        "-DSNMALLOC_USE_WAIT_ON_ADDRESS=1",
+    ]
+    LOCAL_INCLUDES += ["/memory/snmalloc/src"]
 elif CONFIG["MOZ_MEMORY"] and not CONFIG["MOZ_ALT_ALLOCATOR"]:
     UNIFIED_SOURCES += [
         "BaseAlloc.cpp",
