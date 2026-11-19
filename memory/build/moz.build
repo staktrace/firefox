@@ -167,6 +167,46 @@ elif CONFIG["MOZ_ALT_ALLOCATOR"] == "jemalloc5":
             "-Wno-implicit-fallthrough",
         ]
     LOCAL_INCLUDES += ["/memory/jemalloc5/include"]
+elif CONFIG["MOZ_ALT_ALLOCATOR"] == "tcmalloc":
+    tcmalloc_sources = [
+        "/memory/gperftools/src/base/dynamic_annotations.cc",
+        "/memory/gperftools/src/base/generic_writer.cc",
+        "/memory/gperftools/src/base/logging.cc",
+        "/memory/gperftools/src/base/proc_maps_iterator.cc",
+        "/memory/gperftools/src/base/spinlock.cc",
+        "/memory/gperftools/src/base/spinlock_internal.cc",
+        "/memory/gperftools/src/base/sysinfo.cc",
+        "/memory/gperftools/src/central_freelist.cc",
+        "/memory/gperftools/src/common.cc",
+        "/memory/gperftools/src/internal_logging.cc",
+        "/memory/gperftools/src/malloc_extension.cc",
+        "/memory/gperftools/src/malloc_hook.cc",
+        "/memory/gperftools/src/memfs_malloc.cc",
+        "/memory/gperftools/src/page_heap.cc",
+        "/memory/gperftools/src/safe_strerror.cc",
+        "/memory/gperftools/src/sampler.cc",
+        "/memory/gperftools/src/span.cc",
+        "/memory/gperftools/src/stack_trace_table.cc",
+        "/memory/gperftools/src/static_vars.cc",
+        "/memory/gperftools/src/system-alloc.cc",
+        "/memory/gperftools/src/tcmalloc.cc",
+        "/memory/gperftools/src/thread_cache.cc",
+        "/memory/gperftools/src/thread_cache_ptr.cc",
+    ]
+    SOURCES += tcmalloc_sources
+    for f in tcmalloc_sources:
+        SOURCES[f].flags += [
+            "-DNDEBUG",
+            "-DNO_TCMALLOC_SAMPLES",
+            "-DTCMALLOC_SKIP_OVERRIDE",
+            "-Wno-unused-parameter",
+            "-Wno-unused-function",
+            "-Wno-sign-compare",
+        ]
+    LOCAL_INCLUDES += [
+        "/memory/gperftools/config",
+        "/memory/gperftools/src",
+    ]
 elif CONFIG["MOZ_MEMORY"] and not CONFIG["MOZ_ALT_ALLOCATOR"]:
     UNIFIED_SOURCES += [
         "BaseAlloc.cpp",

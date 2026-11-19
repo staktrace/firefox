@@ -33,10 +33,10 @@ set_define("MOZ_MEMORY", True, when="--enable-jemalloc")
 option(
     "--enable-alt-allocator",
     nargs=1,
-    choices=("rpmalloc", "mimalloc", "snmalloc", "jemalloc5"),
+    choices=("rpmalloc", "mimalloc", "snmalloc", "jemalloc5", "tcmalloc"),
     when="--enable-jemalloc",
     help="Use the given allocator instead of mozjemalloc (experimental). "
-    "jemalloc5 is upstream jemalloc",
+    "jemalloc5 is upstream jemalloc, tcmalloc is gperftools",
 )
 
 
