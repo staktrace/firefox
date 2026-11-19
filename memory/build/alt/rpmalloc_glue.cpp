@@ -16,40 +16,23 @@
 // allocation and every free, so they share rpmalloc's thread heaps instead.
 
 #include <atomic>
-#include <errno.h>
 #include <pthread.h>
-#include <string.h>
 #include <sys/mman.h>
-#include <unistd.h>
 
 #ifdef XP_DARWIN
+#  include <mach/mach.h>
+#  include <mach/mach_vm.h>
 #  include <mach/vm_statistics.h>
-#  include <malloc/malloc.h>
 #endif
 
-#include "mozilla/Assertions.h"
-#include "mozilla/Attributes.h"
-#include "mozilla/Likely.h"
-#include "mozmemory_wrap.h"
-#include "mozjemalloc_types.h"
-#ifdef MOZJEMALLOC_PROFILING_CALLBACKS
-#  include "mozjemalloc_profiling.h"
-#endif
+#include "AltCommon.h"
 
 #define RPMALLOC_FIRST_CLASS_HEAPS 1
 #include "rpmalloc.h"
 
 extern "C" size_t rpmalloc_good_size(size_t aSize);
 
-#define MALLOC_DECL(name, return_type, ...) \
-  MOZ_MEMORY_API return_type name##_impl(__VA_ARGS__);
-#define MALLOC_FUNCS MALLOC_FUNCS_MALLOC
-#include "malloc_decls.h"
-
-#define MALLOC_DECL(name, return_type, ...) \
-  MOZ_JEMALLOC_API return_type name(__VA_ARGS__);
-#define MALLOC_FUNCS (MALLOC_FUNCS_JEMALLOC | MALLOC_FUNCS_ARENA)
-#include "malloc_decls.h"
+using namespace mozilla::alt;
 
 namespace {
 
@@ -78,9 +61,6 @@ FreeRun gFreeRuns[kMaxFreeRuns];
 size_t gFreeRunCount = 0;
 
 std::atomic<size_t> gMapped{0};
-// Bytes committed through the memory interface. rpmalloc has no allocated
-// byte counter without ENABLE_STATISTICS, so this stands in for "allocated".
-std::atomic<size_t> gCommitted{0};
 
 std::atomic<bool> gInitialized{false};
 pthread_once_t gInitOnce = PTHREAD_ONCE_INIT;
@@ -189,7 +169,6 @@ int OsCommit(void* aAddress, size_t aSize) {
   while (madvise(aAddress, aSize, MADV_FREE_REUSE) == -1 && errno == EAGAIN) {
   }
 #endif
-  gCommitted.fetch_add(aSize, std::memory_order_relaxed);
   return 0;
 }
 
@@ -202,14 +181,39 @@ int OsDecommit(void* aAddress, size_t aSize) {
 #else
   int ret = madvise(aAddress, aSize, MADV_DONTNEED);
 #endif
-  if (ret != 0) {
-    return 1;
+  return ret != 0 ? 1 : 0;
+}
+
+// rpmalloc has no allocated byte counter without ENABLE_STATISTICS, so report
+// the region's footprint (resident pages not marked reusable) instead.
+size_t Footprint() {
+#ifdef XP_DARWIN
+  if (!gRegionBase) {
+    return 0;
   }
-  size_t cur = gCommitted.load(std::memory_order_relaxed);
-  while (!gCommitted.compare_exchange_weak(cur, cur > aSize ? cur - aSize : 0,
-                                           std::memory_order_relaxed)) {
+  size_t total = 0;
+  mach_vm_address_t addr = reinterpret_cast<mach_vm_address_t>(gRegionBase);
+  const mach_vm_address_t end = reinterpret_cast<mach_vm_address_t>(gRegionEnd);
+  while (addr < end) {
+    mach_vm_size_t size = 0;
+    vm_region_extended_info_data_t info;
+    mach_msg_type_number_t count = VM_REGION_EXTENDED_INFO_COUNT;
+    mach_port_t object = MACH_PORT_NULL;
+    if (mach_vm_region(mach_task_self(), &addr, &size, VM_REGION_EXTENDED_INFO,
+                       reinterpret_cast<vm_region_info_t>(&info), &count,
+                       &object) != KERN_SUCCESS ||
+        addr >= end) {
+      break;
+    }
+    if (info.pages_resident > info.pages_reusable) {
+      total += size_t(info.pages_resident - info.pages_reusable) * vm_page_size;
+    }
+    addr += size;
   }
+  return total;
+#else
   return 0;
+#endif
 }
 
 void InitOnce() {
@@ -246,27 +250,6 @@ MOZ_ALWAYS_INLINE void EnsureInit() {
   }
 }
 
-#ifdef XP_DARWIN
-size_t ForeignSize(const void* aPtr) {
-  malloc_zone_t* zone = malloc_zone_from_ptr(aPtr);
-  return zone ? zone->size(zone, aPtr) : 0;
-}
-
-void ForeignFree(void* aPtr) {
-  malloc_zone_t* zone = malloc_zone_from_ptr(aPtr);
-  MOZ_RELEASE_ASSERT(zone);
-  malloc_zone_free(zone, aPtr);
-}
-#else
-size_t ForeignSize(const void*) { MOZ_CRASH("rpmalloc: foreign pointer"); }
-void ForeignFree(void*) { MOZ_CRASH("rpmalloc: foreign pointer"); }
-#endif
-
-size_t PageSize() {
-  static size_t sPageSize = size_t(sysconf(_SC_PAGESIZE));
-  return sPageSize;
-}
-
 }  // namespace
 
 MOZ_MEMORY_API void* malloc_impl(size_t aSize) {
@@ -295,13 +278,7 @@ MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
   if (!aPtr) {
     return rpmalloc(aSize);
   }
-  size_t oldSize = ForeignSize(aPtr);
-  void* p = rpmalloc(aSize);
-  if (p) {
-    memcpy(p, aPtr, oldSize < aSize ? oldSize : aSize);
-    ForeignFree(aPtr);
-  }
-  return p;
+  return ForeignRealloc(aPtr, aSize, rpmalloc);
 }
 
 MOZ_MEMORY_API void* memalign_impl(size_t aAlignment, size_t aSize) {
@@ -312,30 +289,7 @@ MOZ_MEMORY_API void* memalign_impl(size_t aAlignment, size_t aSize) {
   return rpaligned_alloc(aAlignment, aSize);
 }
 
-MOZ_MEMORY_API int posix_memalign_impl(void** aMemPtr, size_t aAlignment,
-                                       size_t aSize) {
-  if (aAlignment < sizeof(void*) || (aAlignment & (aAlignment - 1))) {
-    return EINVAL;
-  }
-  void* p = memalign_impl(aAlignment, aSize);
-  if (!p) {
-    return ENOMEM;
-  }
-  *aMemPtr = p;
-  return 0;
-}
-
-MOZ_MEMORY_API void* aligned_alloc_impl(size_t aAlignment, size_t aSize) {
-  if (aAlignment == 0 || (aAlignment & (aAlignment - 1)) ||
-      aSize % aAlignment) {
-    return nullptr;
-  }
-  return memalign_impl(aAlignment, aSize);
-}
-
-MOZ_MEMORY_API void* valloc_impl(size_t aSize) {
-  return memalign_impl(PageSize(), aSize);
-}
+ALT_DEFINE_MEMALIGN_VARIANTS()
 
 MOZ_MEMORY_API size_t malloc_usable_size_impl(usable_ptr_t aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
@@ -429,7 +383,7 @@ MOZ_JEMALLOC_API void jemalloc_stats_internal(jemalloc_stats_t* aStats,
   aStats->page_size = PageSize();
   aStats->real_page_size = PageSize();
   aStats->mapped = gMapped.load(std::memory_order_relaxed);
-  aStats->allocated = gCommitted.load(std::memory_order_relaxed);
+  aStats->allocated = Footprint();
 }
 
 MOZ_JEMALLOC_API size_t jemalloc_stats_num_bins() { return 0; }
@@ -438,7 +392,7 @@ MOZ_JEMALLOC_API void jemalloc_stats_lite(jemalloc_stats_lite_t* aStats) {
   if (!aStats) {
     return;
   }
-  aStats->allocated_bytes = gCommitted.load(std::memory_order_relaxed);
+  aStats->allocated_bytes = Footprint();
   aStats->num_operations = 0;
 }
 
@@ -475,24 +429,14 @@ MOZ_JEMALLOC_API void jemalloc_thread_local_arena(bool) {}
 MOZ_JEMALLOC_API void jemalloc_ptr_info(const void* aPtr,
                                         jemalloc_ptr_info_t* aInfo) {
   if (IsOwned(aPtr)) {
-    aInfo->tag = TagLiveAlloc;
-    aInfo->addr = const_cast<void*>(aPtr);
-    aInfo->size = rpmalloc_usable_size(const_cast<void*>(aPtr));
+    SetPtrInfo(aInfo, TagLiveAlloc, const_cast<void*>(aPtr),
+               rpmalloc_usable_size(const_cast<void*>(aPtr)));
   } else {
-    aInfo->tag = TagUnknown;
-    aInfo->addr = nullptr;
-    aInfo->size = 0;
+    SetPtrInfo(aInfo, TagUnknown, nullptr, 0);
   }
-#ifdef MOZ_DEBUG
-  aInfo->arenaId = 0;
-#endif
 }
 
-#ifdef MOZJEMALLOC_PROFILING_CALLBACKS
-namespace mozilla {
-void jemalloc_set_profiler_callbacks(RefPtr<MallocProfilerCallbacks>&&) {}
-}  // namespace mozilla
-#endif
+ALT_DEFINE_PROFILER_CALLBACKS_STUB()
 
 extern "C" void _malloc_prefork(void) { pthread_mutex_lock(&gMapLock); }
 

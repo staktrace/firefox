@@ -34,11 +34,18 @@ if CONFIG["MOZ_PHC"]:
         "FdPrintf.h",
     ]
 
-if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
+if CONFIG["MOZ_ALT_ALLOCATOR"]:
+    SOURCES += [
+        "alt/%s_glue.cpp" % CONFIG["MOZ_ALT_ALLOCATOR"],
+    ]
     UNIFIED_SOURCES += [
-        "alt/rpmalloc_glue.cpp",
         "mozmemory_wrap.cpp",
     ]
+    SOURCE_HEADERS += [
+        "alt/AltCommon.h",
+    ]
+
+if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
     SOURCES += [
         "/memory/rpmalloc/rpmalloc.c",
     ]
@@ -55,7 +62,7 @@ if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
     ]
     SOURCES["/memory/rpmalloc/rpmalloc.c"].flags += rpmalloc_flags
     LOCAL_INCLUDES += ["/memory/rpmalloc"]
-elif CONFIG["MOZ_MEMORY"]:
+elif CONFIG["MOZ_MEMORY"] and not CONFIG["MOZ_ALT_ALLOCATOR"]:
     UNIFIED_SOURCES += [
         "BaseAlloc.cpp",
         "Chunk.cpp",

@@ -46,12 +46,6 @@ def alt_allocator(value):
 
 
 set_config("MOZ_ALT_ALLOCATOR", alt_allocator)
-set_define("MOZ_ALT_ALLOCATOR", True, when=alt_allocator)
-set_define(
-    depends(alt_allocator)(lambda a: f"MOZ_ALT_ALLOCATOR_{a.upper()}" if a else None),
-    True,
-    when=alt_allocator,
-)
 
 imply_option("--enable-replace-malloc", False, when=alt_allocator)
 imply_option("--enable-phc", False, when=alt_allocator)
