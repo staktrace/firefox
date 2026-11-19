@@ -27,6 +27,36 @@ set_config("MOZ_MEMORY", True, when="--enable-jemalloc")
 set_define("MOZ_MEMORY", True, when="--enable-jemalloc")
 
 
+# Experimental: replace mozjemalloc with a third-party allocator that
+# implements the mozmemory API (memory/build/alt/). MOZ_MEMORY stays defined so
+# the rest of the tree keeps using that API.
+option(
+    "--enable-alt-allocator",
+    nargs=1,
+    choices=("rpmalloc",),
+    when="--enable-jemalloc",
+    help="Use the given allocator instead of mozjemalloc (experimental)",
+)
+
+
+@depends("--enable-alt-allocator", when="--enable-jemalloc")
+def alt_allocator(value):
+    if value:
+        return value[0]
+
+
+set_config("MOZ_ALT_ALLOCATOR", alt_allocator)
+set_define("MOZ_ALT_ALLOCATOR", True, when=alt_allocator)
+set_define(
+    depends(alt_allocator)(lambda a: f"MOZ_ALT_ALLOCATOR_{a.upper()}" if a else None),
+    True,
+    when=alt_allocator,
+)
+
+imply_option("--enable-replace-malloc", False, when=alt_allocator)
+imply_option("--enable-phc", False, when=alt_allocator)
+
+
 @depends("--enable-jemalloc", moz_debug, win32_redist_dir)
 def check_redist(jemalloc, debug, win32_redist_dir):
     if not jemalloc and not win32_redist_dir and not debug:

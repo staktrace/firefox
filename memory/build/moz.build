@@ -34,7 +34,28 @@ if CONFIG["MOZ_PHC"]:
         "FdPrintf.h",
     ]
 
-if CONFIG["MOZ_MEMORY"]:
+if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
+    UNIFIED_SOURCES += [
+        "alt/rpmalloc_glue.cpp",
+        "mozmemory_wrap.cpp",
+    ]
+    SOURCES += [
+        "/memory/rpmalloc/rpmalloc.c",
+    ]
+    rpmalloc_flags = [
+        "-DRPMALLOC_PTHREAD_TLS",
+        "-DENABLE_OVERRIDE=0",
+        "-DENABLE_STATISTICS=0",
+        "-DENABLE_VALIDATE_ARGS=0",
+        "-DENABLE_ASSERTS=0",
+        "-DRPMALLOC_FIRST_CLASS_HEAPS=1",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-sign-compare",
+    ]
+    SOURCES["/memory/rpmalloc/rpmalloc.c"].flags += rpmalloc_flags
+    LOCAL_INCLUDES += ["/memory/rpmalloc"]
+elif CONFIG["MOZ_MEMORY"]:
     UNIFIED_SOURCES += [
         "BaseAlloc.cpp",
         "Chunk.cpp",
