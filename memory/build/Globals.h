@@ -161,11 +161,7 @@ extern size_t opt_dirty_max;
 
 #define OPT_JUNK_DEFAULT false
 #define OPT_ZERO_DEFAULT false
-#ifdef NIGHTLY_BUILD
-#  define OPT_POISON_DEFAULT ALL
-#else
-#  define OPT_POISON_DEFAULT SOME
-#endif
+#define OPT_POISON_DEFAULT NONE
 // Keep this larger than and ideally a multiple of kCacheLineSize;
 #define OPT_POISON_SIZE_DEFAULT 256
 
