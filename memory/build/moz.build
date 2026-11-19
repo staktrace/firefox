@@ -62,6 +62,20 @@ if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
     ]
     SOURCES["/memory/rpmalloc/rpmalloc.c"].flags += rpmalloc_flags
     LOCAL_INCLUDES += ["/memory/rpmalloc"]
+elif CONFIG["MOZ_ALT_ALLOCATOR"] == "mimalloc":
+    SOURCES += [
+        "/memory/mimalloc/src/static.c",
+    ]
+    SOURCES["/memory/mimalloc/src/static.c"].flags += [
+        "-DNDEBUG",
+        "-DMI_DEBUG=0",
+        "-DMI_STATS=1",
+        "-DMI_PROFILE=1",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-sign-compare",
+    ]
+    LOCAL_INCLUDES += ["/memory/mimalloc/include"]
 elif CONFIG["MOZ_MEMORY"] and not CONFIG["MOZ_ALT_ALLOCATOR"]:
     UNIFIED_SOURCES += [
         "BaseAlloc.cpp",
