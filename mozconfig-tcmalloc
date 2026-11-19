@@ -1,0 +1,12 @@
+# Firefox with tcmalloc compiled into mozglue in place of mozjemalloc
+# (allocator-alt branch). PHC and replace-malloc are implied off.
+# Use from the checkout root: MOZCONFIG=mozconfig-tcmalloc ./mach build
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+ac_add_options --enable-release
+ac_add_options --enable-alt-allocator=tcmalloc
+
+ac_add_options --with-ccache=sccache
+
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-tcmalloc
+mk_add_options AUTOCLOBBER=1

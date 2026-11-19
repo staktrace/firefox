@@ -1,0 +1,12 @@
+# Firefox with PartitionAlloc (Chromium) compiled into mozglue in place of mozjemalloc
+# (allocator-alt branch). PHC and replace-malloc are implied off.
+# Use from the checkout root: MOZCONFIG=mozconfig-partition_alloc ./mach build
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+ac_add_options --enable-release
+ac_add_options --enable-alt-allocator=partition_alloc
+
+ac_add_options --with-ccache=sccache
+
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-partition_alloc
+mk_add_options AUTOCLOBBER=1

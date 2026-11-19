@@ -1,0 +1,12 @@
+# Firefox with libpas (WebKit bmalloc) compiled into mozglue in place of mozjemalloc
+# (allocator-alt branch). PHC and replace-malloc are implied off.
+# Use from the checkout root: MOZCONFIG=mozconfig-libpas ./mach build
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+ac_add_options --enable-release
+ac_add_options --enable-alt-allocator=libpas
+
+ac_add_options --with-ccache=sccache
+
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-libpas
+mk_add_options AUTOCLOBBER=1
