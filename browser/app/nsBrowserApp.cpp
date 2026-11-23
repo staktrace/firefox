@@ -50,6 +50,9 @@
 
 #include "nsXPCOMPrivate.h"  // for MAXPATHLEN and XPCOM_DLL
 
+#ifdef MOZ_ALLOC_PROBES
+#  include "mozilla/AllocProbes.h"
+#endif
 #include "mozilla/BaseProfiler.h"
 #include "mozilla/Sprintf.h"
 #include "mozilla/StartupTimeline.h"
@@ -338,6 +341,13 @@ static void ExpandFileDescriptorTable() {
 #endif
 
 int main(int argc, char* argv[], char* envp[]) {
+#ifdef MOZ_ALLOC_PROBES
+  int allocProbeStatus = MozAllocProbesMain(argc, argv);
+  if (allocProbeStatus >= 0) {
+    return allocProbeStatus;
+  }
+#endif
+
 #if defined(XP_UNIX)
   ReserveDefaultFileDescriptors();
 #endif

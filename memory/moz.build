@@ -24,3 +24,6 @@ else:
 
 if CONFIG["MOZ_REPLACE_MALLOC"]:
     DIRS += ["replace"]
+
+if CONFIG["MOZ_ALLOC_PROBES"]:
+    DIRS += ["probes"]

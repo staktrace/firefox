@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Memory-error probes, linked into mozglue next to the allocator so they
+# exercise exactly the allocator configuration of the build. See README.md.
+
+EXPORTS.mozilla += [
+    "AllocProbes.h",
+]
+
+SOURCES += [
+    "AllocProbes.c",
+]
+
+# Keep the deliberate undefined behaviour intact and leave detection to the
+# allocator alone.
+SOURCES["AllocProbes.c"].flags += [
+    "-O1",
+    "-fno-builtin",
+    "-fno-strict-aliasing",
+    "-fno-stack-protector",
+    "-U_FORTIFY_SOURCE",
+    "-D_FORTIFY_SOURCE=0",
+]
+
+DEFINES["IMPL_MFBT"] = True
+
+Library("alloc_probes")
+FINAL_LIBRARY = "mozglue"

@@ -61,6 +61,23 @@ imply_option("--enable-replace-malloc", False, when=alt_allocator)
 imply_option("--enable-phc", False, when=alt_allocator)
 
 
+# Experimental: memory-error probes (memory/probes) linked into mozglue and run
+# with `firefox --alloc-probe`, to score the allocator the build uses.
+@depends(target, build_project)
+def alloc_probes_default(target, build_project):
+    return build_project == "browser" and target.kernel in ("Darwin", "Linux")
+
+
+option(
+    "--enable-alloc-probes",
+    default=alloc_probes_default,
+    help="{Build|Do not build} the allocator memory-error probes (experimental)",
+)
+
+set_config("MOZ_ALLOC_PROBES", True, when="--enable-alloc-probes")
+set_define("MOZ_ALLOC_PROBES", True, when="--enable-alloc-probes")
+
+
 @depends("--enable-jemalloc", moz_debug, win32_redist_dir)
 def check_redist(jemalloc, debug, win32_redist_dir):
     if not jemalloc and not win32_redist_dir and not debug:
