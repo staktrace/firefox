@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>alloc-micro</title>
+<style>
+  html, body { margin: 0; }
+  #stage {
+    position: relative; width: 1000px; height: 700px; overflow: hidden;
+    font: 14px sans-serif;
+  }
+  .tree, .gfx, .lay { position: absolute; left: 0; top: 0; }
+  .gfx canvas, .gfx svg { position: absolute; left: 400px; top: 100px; }
+  .spinner {
+    position: absolute; left: 0; top: 0; width: 120px; height: 40px;
+    border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    will-change: transform;
+  }
+</style>
+<div id="stage"></div>
+<script src="alloc-micro.js"></script>
