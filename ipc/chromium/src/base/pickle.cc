@@ -5,6 +5,7 @@
 #include "base/pickle.h"
 
 #include "mozilla/CheckedInt.h"
+#include "mozilla/mozalloc.h"
 #include "mozilla/Telemetry.h"
 #include "mozilla/ipc/ProtocolUtils.h"
 
@@ -430,19 +431,20 @@ bool Pickle::WriteBytesZeroCopy(void* data, size_t data_len, size_t capacity) {
   BeginWrite(data_len);
 
   uint32_t new_capacity = AlignInt(capacity);
-#ifndef MOZ_MEMORY
-  if (new_capacity > capacity) {
-    // If the buffer we were given is not large enough to contain padding
-    // after the data, reallocate it to make it so. When using jemalloc,
-    // we're guaranteed the buffer size is going to be at least 4-bytes
-    // aligned, so we skip realloc altogether. Even with other allocators,
-    // the realloc is likely not necessary, but we don't take chances.
-    // At least with ASan, it does matter to realloc to inform ASan we're
-    // going to use more data from the buffer (and let it actually realloc
-    // if it needs to).
+  // If the buffer we were given is not large enough to contain padding after
+  // the data, reallocate it to make it so. With MOZ_MEMORY, skip the realloc
+  // when the allocation's usable size already covers the padding, as it does
+  // with mozjemalloc's size classes; other allocators may hand out exactly
+  // the requested size. At least with ASan, it does matter to realloc to
+  // inform ASan we're going to use more data from the buffer (and let it
+  // actually realloc if it needs to).
+  if (new_capacity > capacity
+#ifdef MOZ_MEMORY
+      && moz_malloc_usable_size(data) < new_capacity
+#endif
+  ) {
     data = realloc(data, new_capacity);
   }
-#endif
 
   // Shouldn't fail, because we're using InfallibleAllocPolicy.
   MOZ_ALWAYS_TRUE(buffers_.WriteBytesZeroCopy(reinterpret_cast<char*>(data),
