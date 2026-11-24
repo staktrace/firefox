@@ -11,6 +11,10 @@ MOZ_MEMORY_API void* memalign(size_t aAlignment, size_t aSize) {
   return _aligned_malloc(aSize, aAlignment);
 #  else
   void* ret;
+  // posix_memalign requires a multiple of sizeof(void*).
+  if (aAlignment < sizeof(void*)) {
+    aAlignment = sizeof(void*);
+  }
   if (posix_memalign(&ret, aAlignment, aSize) != 0) {
     return nullptr;
   }
