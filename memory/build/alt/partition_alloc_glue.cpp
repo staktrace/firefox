@@ -44,6 +44,16 @@ constexpr auto kAllocFlags = pa::AllocFlags::kReturnNull;
 constexpr auto kZeroAllocFlags =
     pa::AllocFlags::kReturnNull | pa::AllocFlags::kZeroFill;
 
+// Delays reuse of freed slots as the UAF mitigation. Zapping is left to the
+// glue so freed memory reads 0xe5.
+pa::internal::SchedulerLoopQuarantineConfig QuarantineConfig() {
+  pa::internal::SchedulerLoopQuarantineConfig config;
+  config.branch_capacity_in_bytes = 4 * 1024 * 1024;
+  config.enable_quarantine = true;
+  config.zap_max = 0;
+  return config;
+}
+
 std::atomic<pa::PartitionRoot*> gMainRoot{nullptr};
 alignas(pa::PartitionRoot) char gMainRootStorage[sizeof(pa::PartitionRoot)];
 std::atomic_flag gMainRootInitLock = ATOMIC_FLAG_INIT;
@@ -91,6 +101,8 @@ MOZ_NEVER_INLINE pa::PartitionRoot* InitMainRoot() {
     // The index the main root's thread cache uses once enabled, as set by
     // Chromium's ConfigurePartitions().
     opts.thread_cache_index = 0;
+    opts.scheduler_loop_quarantine_global_config = QuarantineConfig();
+    opts.scheduler_loop_quarantine_thread_local_config = QuarantineConfig();
     root = new (gMainRootStorage) pa::PartitionRoot(opts);
     gMainRoot.store(root, std::memory_order_release);
     gMainRootInitThread.store(nullptr, std::memory_order_relaxed);
@@ -205,12 +217,33 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
   return root->Alloc<kZeroAllocFlags>(total);
 }
 
+static inline void RawFree(void* aPtr) {
+  pa::PartitionRoot::FreeInUnknownRoot<pa::FreeFlags::kNoHooks |
+                                       pa::FreeFlags::kSchedulerLoopQuarantine>(
+      aPtr);
+}
+
 MOZ_MEMORY_API void free_impl(void* aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
-    pa::PartitionRoot::FreeInUnknownRoot(aPtr);
+    PoisonFreedKeepingLinks(aPtr, OwnedSize(aPtr));
+    RawFree(aPtr);
   } else if (aPtr) {
     ForeignFree(aPtr);
   }
+}
+
+static void* ReallocIn(pa::PartitionRoot* aRoot, void* aPtr, size_t aSize) {
+  auto alloc = [aRoot](size_t aN) { return aRoot->Alloc<kAllocFlags>(aN); };
+  if (!aPtr) {
+    return alloc(aSize);
+  }
+  if (!IsOwned(aPtr)) {
+    return ForeignRealloc(aPtr, aSize, alloc);
+  }
+  return PoisoningRealloc(aPtr, aSize, OwnedSize, alloc, RawFree,
+                          [aRoot](void* aP, size_t aN) {
+                            return aRoot->Realloc<kAllocFlags>(aP, aN, "");
+                          });
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
@@ -218,10 +251,7 @@ MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
   if (MOZ_UNLIKELY(!root)) {
     return malloc_zone_realloc(SystemZone(), aPtr, aSize);
   }
-  if (!aPtr || IsOwned(aPtr)) {
-    return root->Realloc<kAllocFlags>(aPtr, aSize, "");
-  }
-  return ForeignRealloc(aPtr, aSize, malloc_impl);
+  return ReallocIn(root, aPtr, aSize);
 }
 
 MOZ_MEMORY_API void* memalign_impl(size_t aAlignment, size_t aSize) {
@@ -265,6 +295,7 @@ MOZ_JEMALLOC_API arena_id_t moz_create_arena_with_params(arena_params_t*) {
   pa::PartitionOptions opts;
   opts.thread_cache = pa::PartitionOptions::kDisabled;
   opts.backup_ref_ptr = pa::PartitionOptions::kDisabled;
+  opts.scheduler_loop_quarantine_global_config = QuarantineConfig();
   auto* allocator = new (gArenaStorage[id]) pa::PartitionAllocator(opts);
   __atomic_store_n(&gArenaRoots[id], allocator->root(), __ATOMIC_RELEASE);
   return id;
@@ -295,12 +326,7 @@ MOZ_JEMALLOC_API void* moz_arena_calloc(arena_id_t aId, size_t aNum,
 
 MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
                                          size_t aSize) {
-  pa::PartitionRoot* root = RootForArena(aId);
-  if (!aPtr || IsOwned(aPtr)) {
-    return root->Realloc<kAllocFlags>(aPtr, aSize, "");
-  }
-  return ForeignRealloc(
-      aPtr, aSize, [root](size_t aN) { return root->Alloc<kAllocFlags>(aN); });
+  return ReallocIn(RootForArena(aId), aPtr, aSize);
 }
 
 MOZ_JEMALLOC_API void moz_arena_free(arena_id_t, void* aPtr) {

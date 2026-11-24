@@ -26,8 +26,8 @@ sources are those of the `allocator_base` and `allocator_core` targets. The
 shim itself is not built: Firefox's Zone.c and the glue take its place.
 
 This is Chromium's configuration for PartitionAlloc as malloc, except
-BackupRefPtr, which only protects Chromium's raw_ptr<T>, and, to favour speed,
-`MOVE_METADATA_OUT_OF_GIGACAGE_FOR_64_BITS_POINTERS` and
-`ENABLE_MOVE_METADATA_OUT_OF_GIGACAGE_TRIAL`, set to 0 by hand in
-`buildflags.h`, so slot span metadata stays at its fixed offset inside each
-super page.
+BackupRefPtr, which only protects Chromium's raw_ptr<T>. For maximum
+hardening, `buildflags.h` is then edited by hand: `USE_PARTITION_COOKIE` is 1,
+so every slot carries a cookie checked on free, and
+`ENABLE_MOVE_METADATA_OUT_OF_GIGACAGE_TRIAL` is 0, so slot span metadata is
+always kept outside the GigaCage instead of in a random share of processes.

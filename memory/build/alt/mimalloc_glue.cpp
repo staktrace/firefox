@@ -23,6 +23,19 @@ inline mi_heap_t* HeapForArena(arena_id_t aId) {
   return reinterpret_cast<mi_heap_t*>(aId);
 }
 
+// mimalloc prints and carries on after a detected double free (EAGAIN) and,
+// outside MI_SECURE, after corruption (EFAULT). Crash instead, as mozjemalloc
+// does.
+void OnMimallocError(int aErr, void*) {
+  if (aErr == EAGAIN || aErr == EFAULT) {
+    MOZ_CRASH("mimalloc detected heap corruption or a double free");
+  }
+}
+
+__attribute__((constructor)) void RegisterErrorHandler() {
+  mi_register_error(OnMimallocError, nullptr);
+}
+
 }  // namespace
 
 MOZ_MEMORY_API void* malloc_impl(size_t aSize) { return mi_malloc(aSize); }
@@ -33,6 +46,7 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
 
 MOZ_MEMORY_API void free_impl(void* aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
+    PoisonFreedKeepingLinks(aPtr, mi_usable_size(aPtr));
     mi_free(aPtr);
   } else if (aPtr) {
     ForeignFree(aPtr);
@@ -40,8 +54,12 @@ MOZ_MEMORY_API void free_impl(void* aPtr) {
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
-  if (!aPtr || IsOwned(aPtr)) {
-    return mi_realloc(aPtr, aSize);
+  if (!aPtr) {
+    return mi_malloc(aSize);
+  }
+  if (IsOwned(aPtr)) {
+    return PoisoningRealloc(aPtr, aSize, mi_usable_size, mi_malloc, mi_free,
+                            mi_realloc);
   }
   return ForeignRealloc(aPtr, aSize, mi_malloc);
 }
@@ -85,8 +103,14 @@ MOZ_JEMALLOC_API void* moz_arena_calloc(arena_id_t aId, size_t aNum,
 MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
                                          size_t aSize) {
   mi_heap_t* heap = HeapForArena(aId);
-  if (!aPtr || IsOwned(aPtr)) {
-    return mi_heap_realloc(heap, aPtr, aSize);
+  if (!aPtr) {
+    return mi_heap_malloc(heap, aSize);
+  }
+  if (IsOwned(aPtr)) {
+    return PoisoningRealloc(
+        aPtr, aSize, mi_usable_size,
+        [heap](size_t aN) { return mi_heap_malloc(heap, aN); }, mi_free,
+        [heap](void* aP, size_t aN) { return mi_heap_realloc(heap, aP, aN); });
   }
   return ForeignRealloc(aPtr, aSize,
                         [heap](size_t aN) { return mi_heap_malloc(heap, aN); });

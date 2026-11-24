@@ -6,10 +6,11 @@
 // built with the je_ prefix and without its own macOS zone.
 //
 // Every moz arena is a jemalloc arena (arenas.create) used through
-// MALLOCX_ARENA with the automatic thread cache, so small allocations may be
-// served from the calling thread's cache rather than the arena itself.
-// jemalloc cannot destroy an arena while other threads' caches may still hold
-// its regions, so disposed arenas are purged and their index reused.
+// MALLOCX_ARENA | MALLOCX_TCACHE_NONE, and frees of arena regions bypass the
+// thread cache as well, so, as with mozjemalloc, arena regions never pass
+// through a thread cache shared with other arenas. jemalloc cannot destroy an
+// arena while other threads' caches may still hold its regions, so disposed
+// arenas are purged and their index reused.
 
 #include <pthread.h>
 #include <stdarg.h>
@@ -21,6 +22,7 @@
 
 extern "C" {
 size_t moz_je5_owned_size(const void* aPtr);
+size_t moz_je5_owned_size_and_arena(const void* aPtr, bool* aManualArena);
 }
 
 using namespace mozilla::alt;
@@ -29,6 +31,22 @@ namespace {
 
 inline size_t OwnedSize(const void* aPtr) {
   return aPtr ? moz_je5_owned_size(aPtr) : 0;
+}
+
+// Regions of moz arenas bypass the thread cache on free too, whichever entry
+// point frees them.
+inline void RawFree(void* aPtr, bool aManualArena) {
+  if (aManualArena) {
+    je_dallocx(aPtr, MALLOCX_TCACHE_NONE);
+  } else {
+    je_free(aPtr);
+  }
+}
+
+inline void RawFree(void* aPtr) {
+  bool manual;
+  moz_je5_owned_size_and_arena(aPtr, &manual);
+  RawFree(aPtr, manual);
 }
 
 inline size_t NonZero(size_t aSize) { return aSize ? aSize : 1; }
@@ -79,16 +97,23 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
 }
 
 MOZ_MEMORY_API void free_impl(void* aPtr) {
-  if (MOZ_LIKELY(OwnedSize(aPtr))) {
-    je_free(aPtr);
+  bool manual;
+  if (size_t size = aPtr ? moz_je5_owned_size_and_arena(aPtr, &manual) : 0) {
+    PoisonFreed(aPtr, size);
+    RawFree(aPtr, manual);
   } else if (aPtr) {
     ForeignFree(aPtr);
   }
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
-  if (!aPtr || OwnedSize(aPtr)) {
-    return je_realloc(aPtr, aSize);
+  if (!aPtr) {
+    return je_malloc(aSize);
+  }
+  if (OwnedSize(aPtr)) {
+    return PoisoningRealloc(
+        aPtr, aSize, OwnedSize, je_malloc, [](void* aP) { RawFree(aP); },
+        je_realloc);
   }
   return ForeignRealloc(aPtr, aSize, je_malloc);
 }
@@ -134,8 +159,14 @@ MOZ_JEMALLOC_API void moz_dispose_arena(arena_id_t aId) {
   pthread_mutex_unlock(&gArenaLock);
 }
 
+namespace {
+inline int ArenaFlags(arena_id_t aId) {
+  return MALLOCX_ARENA(aId) | MALLOCX_TCACHE_NONE;
+}
+}  // namespace
+
 MOZ_JEMALLOC_API void* moz_arena_malloc(arena_id_t aId, size_t aSize) {
-  return je_mallocx(NonZero(aSize), MALLOCX_ARENA(aId));
+  return je_mallocx(NonZero(aSize), ArenaFlags(aId));
 }
 
 MOZ_JEMALLOC_API void* moz_arena_calloc(arena_id_t aId, size_t aNum,
@@ -144,7 +175,7 @@ MOZ_JEMALLOC_API void* moz_arena_calloc(arena_id_t aId, size_t aNum,
   if (__builtin_mul_overflow(aNum, aSize, &total)) {
     return nullptr;
   }
-  return je_mallocx(NonZero(total), MALLOCX_ARENA(aId) | MALLOCX_ZERO);
+  return je_mallocx(NonZero(total), ArenaFlags(aId) | MALLOCX_ZERO);
 }
 
 MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
@@ -153,7 +184,13 @@ MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
     return moz_arena_malloc(aId, aSize);
   }
   if (OwnedSize(aPtr)) {
-    return je_rallocx(aPtr, NonZero(aSize), MALLOCX_ARENA(aId));
+    return PoisoningRealloc(
+        aPtr, aSize, OwnedSize,
+        [aId](size_t aN) { return moz_arena_malloc(aId, aN); },
+        [](void* aP) { RawFree(aP); },
+        [aId](void* aP, size_t aN) {
+          return je_rallocx(aP, NonZero(aN), ArenaFlags(aId));
+        });
   }
   return ForeignRealloc(aPtr, aSize,
                         [aId](size_t aN) { return moz_arena_malloc(aId, aN); });
@@ -169,7 +206,7 @@ MOZ_JEMALLOC_API void* moz_arena_memalign(arena_id_t aId, size_t aAlignment,
     aAlignment = sizeof(void*);
   }
   return je_mallocx(NonZero(aSize),
-                    MALLOCX_ARENA(aId) | MALLOCX_ALIGN(aAlignment));
+                    ArenaFlags(aId) | MALLOCX_ALIGN(aAlignment));
 }
 
 MOZ_JEMALLOC_API void jemalloc_stats_internal(jemalloc_stats_t* aStats,

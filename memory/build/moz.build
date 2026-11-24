@@ -53,8 +53,8 @@ if CONFIG["MOZ_ALT_ALLOCATOR"] == "rpmalloc":
         "-DRPMALLOC_PTHREAD_TLS",
         "-DENABLE_OVERRIDE=0",
         "-DENABLE_STATISTICS=0",
-        "-DENABLE_VALIDATE_ARGS=0",
-        "-DENABLE_ASSERTS=0",
+        "-DENABLE_VALIDATE_ARGS=1",
+        "-DENABLE_ASSERTS=1",
         "-DRPMALLOC_FIRST_CLASS_HEAPS=1",
         "-Wno-unused-function",
         "-Wno-unused-parameter",
@@ -71,9 +71,9 @@ elif CONFIG["MOZ_ALT_ALLOCATOR"] == "mimalloc":
         "-DMI_DEBUG=0",
         "-DMI_STATS=1",
         "-DMI_PROFILE=1",
-        "-DMI_SECURE=0",
-        "-DMI_GUARDED=0",
-        "-DMI_PADDING=0",
+        "-DMI_SECURE=5",
+        "-DMI_GUARDED=1",
+        "-DMI_DEFAULT_GUARDED_SAMPLE_RATE=65536",
         "-Wno-unused-function",
         "-Wno-unused-parameter",
         "-Wno-sign-compare",
@@ -83,6 +83,7 @@ elif CONFIG["MOZ_ALT_ALLOCATOR"] == "snmalloc":
     SOURCES["alt/snmalloc_glue.cpp"].flags += [
         "-DNDEBUG",
         "-DSNMALLOC_USE_WAIT_ON_ADDRESS=1",
+        "-DSNMALLOC_CHECK_CLIENT",
     ]
     LOCAL_INCLUDES += ["/memory/snmalloc/src"]
 elif CONFIG["MOZ_ALT_ALLOCATOR"] == "jemalloc5":
@@ -215,7 +216,9 @@ elif CONFIG["MOZ_ALT_ALLOCATOR"] == "libpas":
         "-D_GNU_SOURCE",
         "-DPAS_BMALLOC=1",
         "-DPAS_BMALLOC_HIDDEN=1",
-        "-DNDEBUG",
+        # Without NDEBUG, PAS_ENABLE_ASSERT stays on as in WebKit's release
+        # builds outside of arm64 (non-e) Darwin.
+        "-DBASSERT_ENABLED=0",
         "-Wno-unused-parameter",
         "-Wno-unused-function",
         "-Wno-sign-compare",

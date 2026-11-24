@@ -42,8 +42,15 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
   return tc_calloc(aNum, aSize);
 }
 
+namespace {
+inline size_t OwnedUsableSize(const void* aPtr) {
+  return MallocExtension::instance()->GetAllocatedSize(aPtr);
+}
+}  // namespace
+
 MOZ_MEMORY_API void free_impl(void* aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
+    PoisonFreedKeepingLinks(aPtr, OwnedUsableSize(aPtr));
     tc_free(aPtr);
   } else if (aPtr) {
     ForeignFree(aPtr);
@@ -51,8 +58,12 @@ MOZ_MEMORY_API void free_impl(void* aPtr) {
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
-  if (!aPtr || IsOwned(aPtr)) {
-    return tc_realloc(aPtr, aSize);
+  if (!aPtr) {
+    return tc_malloc(aSize);
+  }
+  if (IsOwned(aPtr)) {
+    return PoisoningRealloc(aPtr, aSize, OwnedUsableSize, tc_malloc, tc_free,
+                            tc_realloc);
   }
   return ForeignRealloc(aPtr, aSize, tc_malloc);
 }
@@ -67,8 +78,7 @@ MOZ_MEMORY_API void* memalign_impl(size_t aAlignment, size_t aSize) {
 ALT_DEFINE_MEMALIGN_VARIANTS()
 
 MOZ_MEMORY_API size_t malloc_usable_size_impl(usable_ptr_t aPtr) {
-  return IsOwned(aPtr) ? MallocExtension::instance()->GetAllocatedSize(aPtr)
-                       : 0;
+  return IsOwned(aPtr) ? OwnedUsableSize(aPtr) : 0;
 }
 
 MOZ_MEMORY_API size_t malloc_good_size_impl(size_t aSize) {

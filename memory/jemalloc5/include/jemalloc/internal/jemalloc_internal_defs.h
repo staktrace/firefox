@@ -455,7 +455,7 @@
 #define JEMALLOC_EXPORT
 
 /* config.malloc_conf options string. */
-#define JEMALLOC_CONFIG_MALLOC_CONF ""
+#define JEMALLOC_CONFIG_MALLOC_CONF "san_guard_small:1,san_guard_large:1,lg_san_uaf_align:14,junk:alloc"
 
 /* If defined, jemalloc takes the malloc/free/etc. symbol names. */
 /* #undef JEMALLOC_IS_MALLOC */
@@ -466,7 +466,7 @@
 /* #undef JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE */
 
 /* Performs additional safety checks when defined. */
-/* #undef JEMALLOC_OPT_SAFETY_CHECKS */
+#define JEMALLOC_OPT_SAFETY_CHECKS
 
 /* Is C++ support being built? */
 /* #undef JEMALLOC_ENABLE_CXX */
@@ -485,7 +485,7 @@
 /* #undef JEMALLOC_OPT_SIZE_CHECKS */
 
 /* Allows sampled junk and stash for checking use-after-free when defined. */
-/* #undef JEMALLOC_UAF_DETECTION */
+#define JEMALLOC_UAF_DETECTION
 
 /* If defined, enable dynamic page size. */
 /* #undef DYNAMIC_PAGE_SIZE */

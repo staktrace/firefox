@@ -137,14 +137,17 @@ char* TakeRange(size_t aSize, size_t aAlignment) {
   return aligned;
 }
 
+// Every mapping is followed by an inaccessible guard page, like the guard page
+// mozjemalloc keeps at the end of each chunk and after huge allocations.
 void* OsMap(size_t aSize, size_t aAlignment, size_t* aOffset,
             size_t* aMappedSize) {
   pthread_mutex_lock(&gMapLock);
-  char* p = TakeRange(aSize, aAlignment ? aAlignment : 1);
+  char* p = TakeRange(aSize + PageSize(), aAlignment ? aAlignment : 1);
   pthread_mutex_unlock(&gMapLock);
   if (!p) {
     return nullptr;
   }
+  MOZ_RELEASE_ASSERT(mprotect(p + aSize, PageSize(), PROT_NONE) == 0);
   *aOffset = 0;
   *aMappedSize = aSize;
   gMapped.fetch_add(aSize, std::memory_order_relaxed);
@@ -153,14 +156,14 @@ void* OsMap(size_t aSize, size_t aAlignment, size_t* aOffset,
 
 void OsUnmap(void* aAddress, size_t aOffset, size_t aMappedSize) {
   char* base = static_cast<char*>(aAddress) - aOffset;
-  // Replace the pages with fresh zero pages, releasing them, but keep the
-  // range reserved so it stays inside the owned region.
-  void* r = mmap(base, aMappedSize, PROT_READ | PROT_WRITE,
+  // Replace the pages, including the guard page, with fresh zero pages,
+  // releasing them, but keep the range reserved inside the owned region.
+  void* r = mmap(base, aMappedSize + PageSize(), PROT_READ | PROT_WRITE,
                  MAP_PRIVATE | MAP_ANON | MAP_FIXED, kMapFd, 0);
   MOZ_RELEASE_ASSERT(r == base);
   gMapped.fetch_sub(aMappedSize, std::memory_order_relaxed);
   pthread_mutex_lock(&gMapLock);
-  AddFreeRun(base, aMappedSize);
+  AddFreeRun(base, aMappedSize + PageSize());
   pthread_mutex_unlock(&gMapLock);
 }
 
@@ -264,6 +267,7 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
 
 MOZ_MEMORY_API void free_impl(void* aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
+    PoisonFreedKeepingLinks(aPtr, rpmalloc_usable_size(aPtr));
     rpfree(aPtr);
   } else if (aPtr) {
     ForeignFree(aPtr);
@@ -273,7 +277,8 @@ MOZ_MEMORY_API void free_impl(void* aPtr) {
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
   EnsureInit();
   if (MOZ_LIKELY(IsOwned(aPtr))) {
-    return rprealloc(aPtr, aSize);
+    return PoisoningRealloc(aPtr, aSize, rpmalloc_usable_size, rpmalloc, rpfree,
+                            rprealloc);
   }
   if (!aPtr) {
     return rpmalloc(aSize);
@@ -345,7 +350,13 @@ MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
     return rpmalloc_heap_alloc(heap, aSize);
   }
   if (heap && IsOwned(aPtr)) {
-    return rpmalloc_heap_realloc(heap, aPtr, aSize, 0);
+    return PoisoningRealloc(
+        aPtr, aSize, rpmalloc_usable_size,
+        [heap](size_t aN) { return rpmalloc_heap_alloc(heap, aN); },
+        [heap](void* aP) { rpmalloc_heap_free(heap, aP); },
+        [heap](void* aP, size_t aN) {
+          return rpmalloc_heap_realloc(heap, aP, aN, 0);
+        });
   }
   return realloc_impl(aPtr, aSize);
 }
@@ -353,6 +364,7 @@ MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
 MOZ_JEMALLOC_API void moz_arena_free(arena_id_t aId, void* aPtr) {
   rpmalloc_heap_t* heap = HeapForArena(aId);
   if (heap && IsOwned(aPtr)) {
+    PoisonFreedKeepingLinks(aPtr, rpmalloc_usable_size(aPtr));
     rpmalloc_heap_free(heap, aPtr);
     return;
   }

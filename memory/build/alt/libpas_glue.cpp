@@ -30,6 +30,7 @@ extern "C" {
 #include "pas_all_heaps.h"
 #include "pas_heap_lock.h"
 #include "pas_heap_summary.h"
+#include "pas_probabilistic_guard_malloc_allocator.h"
 #include "pas_runtime_config.h"
 #include "pas_scavenger.h"
 #include "pas_segregated_heap.h"
@@ -65,10 +66,31 @@ void* pas_system_heap_realloc_untagged(void*, size_t) {
 void pas_system_heap_free(void*) { MOZ_CRASH("no system heap"); }
 }
 
+// WebKit turns PGM on in a small random fraction of processes; enable it
+// everywhere, for every allocation slow-path call. PGM's own memory budget
+// bounds how many allocations it guards at a time.
+__attribute__((constructor)) static void EnablePGM() {
+  pas_probabilistic_guard_malloc_initialize_pgm_as_enabled(1);
+}
+
 namespace {
 
+// bmalloc_get_allocation_size returns 0 for PGM allocations, which would make
+// our malloc zone disown them and system free() abort, so look those up in
+// PGM's own table.
 inline size_t OwnedSize(const void* aPtr) {
-  return aPtr ? bmalloc_get_allocation_size(const_cast<void*>(aPtr)) : 0;
+  if (!aPtr) {
+    return 0;
+  }
+  if (size_t size = bmalloc_get_allocation_size(const_cast<void*>(aPtr))) {
+    return size;
+  }
+  pas_heap_lock_lock();
+  pas_large_map_entry entry =
+      pas_probabilistic_guard_malloc_return_as_large_map_entry(
+          reinterpret_cast<uintptr_t>(aPtr));
+  pas_heap_lock_unlock();
+  return entry.end - entry.begin;
 }
 
 constexpr size_t kMaxArenas = 1024;
@@ -112,18 +134,35 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
   return bmalloc_try_allocate_zeroed_inline(total);
 }
 
+namespace {
+inline bool TryDeallocate(void* aPtr) {
+  return bmalloc_try_deallocate_inline_only(aPtr) ||
+         bmalloc_try_deallocate_casual(aPtr);
+}
+}  // namespace
+
 MOZ_MEMORY_API void free_impl(void* aPtr) {
-  if (!aPtr || bmalloc_try_deallocate_inline_only(aPtr) ||
-      bmalloc_try_deallocate_casual(aPtr)) {
+  if (!aPtr) {
     return;
   }
-  ForeignFree(aPtr);
+  if (size_t size = OwnedSize(aPtr)) {
+    PoisonFreed(aPtr, size);
+  }
+  if (!TryDeallocate(aPtr)) {
+    ForeignFree(aPtr);
+  }
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
-  if (!aPtr || OwnedSize(aPtr)) {
-    return bmalloc_try_reallocate_inline(aPtr, aSize,
-                                         pas_reallocate_free_if_successful);
+  if (!aPtr) {
+    return malloc_impl(aSize);
+  }
+  if (OwnedSize(aPtr)) {
+    return PoisoningRealloc(aPtr, aSize, OwnedSize, malloc_impl, TryDeallocate,
+                            [](void* aP, size_t aN) {
+                              return bmalloc_try_reallocate_inline(
+                                  aP, aN, pas_reallocate_free_if_successful);
+                            });
   }
   return ForeignRealloc(aPtr, aSize, malloc_impl);
 }
@@ -200,9 +239,20 @@ MOZ_JEMALLOC_API void* moz_arena_realloc(arena_id_t aId, void* aPtr,
   if (!ref) {
     return realloc_impl(aPtr, aSize);
   }
-  if (!aPtr || OwnedSize(aPtr)) {
-    return bmalloc_try_reallocate_auxiliary_inline(
-        aPtr, ref, aSize, pas_reallocate_free_if_successful);
+  if (!aPtr) {
+    return bmalloc_try_allocate_auxiliary_inline(ref, aSize);
+  }
+  if (OwnedSize(aPtr)) {
+    return PoisoningRealloc(
+        aPtr, aSize, OwnedSize,
+        [ref](size_t aN) {
+          return bmalloc_try_allocate_auxiliary_inline(ref, aN);
+        },
+        TryDeallocate,
+        [ref](void* aP, size_t aN) {
+          return bmalloc_try_reallocate_auxiliary_inline(
+              aP, ref, aN, pas_reallocate_free_if_successful);
+        });
   }
   return ForeignRealloc(aPtr, aSize, [ref](size_t aN) {
     return bmalloc_try_allocate_auxiliary_inline(ref, aN);

@@ -73,6 +73,67 @@ void* ForeignRealloc(void* aPtr, size_t aSize, AllocFn aAlloc) {
   return p;
 }
 
+// Poison-on-free with mozjemalloc's poison byte: every byte of every block,
+// huge ones included, which mozjemalloc does not poison.
+constexpr bool kPoisonAll = true;
+constexpr uint8_t kPoisonByte = 0xe5;
+constexpr size_t kPoisonPartialSize = 256;
+constexpr size_t kPoisonMaxBlockSize = SIZE_MAX;
+
+// aUsable is the usable size of the whole block aPtr is freed from.
+inline void PoisonFreed(void* aPtr, size_t aUsable) {
+  if (aUsable > kPoisonMaxBlockSize) {
+    return;
+  }
+  memset(aPtr, kPoisonByte,
+         kPoisonAll || aUsable < kPoisonPartialSize ? aUsable
+                                                    : kPoisonPartialSize);
+}
+
+// For backends that keep free-list links in freed blocks (at most two words).
+// Leaving them intact means a double free still finds the block's links rather
+// than poison, so the backend's own double-free and free-list checks work.
+constexpr size_t kFreeListLinkSize = 2 * sizeof(void*);
+
+inline void PoisonFreedKeepingLinks(void* aPtr, size_t aUsable) {
+  if (aUsable <= kFreeListLinkSize || aUsable > kPoisonMaxBlockSize) {
+    return;
+  }
+  size_t end =
+      kPoisonAll || aUsable < kPoisonPartialSize ? aUsable : kPoisonPartialSize;
+  memset(static_cast<char*>(aPtr) + kFreeListLinkSize, kPoisonByte,
+         end - kFreeListLinkSize);
+}
+
+// realloc for an owned block that poisons whatever it gives back: the tail
+// when shrinking in place, the old block when moving.
+template <typename UsableFn, typename AllocFn, typename FreeFn,
+          typename ReallocFn>
+void* PoisoningRealloc(void* aPtr, size_t aSize, UsableFn aUsable,
+                       AllocFn aAlloc, FreeFn aFree, ReallocFn aRealloc) {
+  size_t oldSize = aUsable(aPtr);
+  if (oldSize > kPoisonMaxBlockSize && aSize > kPoisonMaxBlockSize) {
+    return aRealloc(aPtr, aSize);
+  }
+  if (aSize <= oldSize && aSize >= oldSize / 2) {
+    if (aSize < oldSize) {
+      size_t tail = oldSize - aSize;
+      memset(
+          static_cast<char*>(aPtr) + aSize, kPoisonByte,
+          kPoisonAll || tail < kPoisonPartialSize ? tail : kPoisonPartialSize);
+    }
+    return aPtr;
+  }
+  void* p = aAlloc(aSize);
+  if (!p) {
+    return nullptr;
+  }
+  memcpy(p, aPtr, oldSize < aSize ? oldSize : aSize);
+  PoisonFreed(aPtr, oldSize);
+  aFree(aPtr);
+  return p;
+}
+
 inline bool IsValidAlignment(size_t aAlignment) {
   return aAlignment && !(aAlignment & (aAlignment - 1));
 }

@@ -90,6 +90,7 @@ MOZ_MEMORY_API void* calloc_impl(size_t aNum, size_t aSize) {
 
 MOZ_MEMORY_API void free_impl(void* aPtr) {
   if (MOZ_LIKELY(IsOwned(aPtr))) {
+    PoisonFreedKeepingLinks(aPtr, sn::malloc_usable_size(aPtr));
     sn::free(aPtr);
   } else if (aPtr) {
     ForeignFree(aPtr);
@@ -97,8 +98,15 @@ MOZ_MEMORY_API void free_impl(void* aPtr) {
 }
 
 MOZ_MEMORY_API void* realloc_impl(void* aPtr, size_t aSize) {
-  if (!aPtr || IsOwned(aPtr)) {
-    return sn::realloc(aPtr, aSize);
+  if (!aPtr) {
+    return sn::malloc(aSize);
+  }
+  if (IsOwned(aPtr)) {
+    return PoisoningRealloc(
+        aPtr, aSize, [](void* aP) { return sn::malloc_usable_size(aP); },
+        [](size_t aN) { return sn::malloc(aN); },
+        [](void* aP) { sn::free(aP); },
+        [](void* aP, size_t aN) { return sn::realloc(aP, aN); });
   }
   return ForeignRealloc(aPtr, aSize, [](size_t aN) { return sn::malloc(aN); });
 }
