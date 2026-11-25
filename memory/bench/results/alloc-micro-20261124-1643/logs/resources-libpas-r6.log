@@ -1,0 +1,31 @@
+1795559335626	Marionette	INFO	Marionette enabled
+2026-11-24 22:28:55.683 Nightly GPU Helper[42305:20332854] _LSModifyNotification(result->notificationID, keyCount, codesToSet, 0, NULL, NULL, NULL) returned error -50 on line 282 in NotificationTracker *createTrackerForMask(KeyMask, id, CFTypeRef)
+2026-11-24 22:28:55.765 Nightly GPU Helper[42305:20332854] Error received in message reply handler: Connection invalid
+2026-11-24 22:28:55.765 Nightly GPU Helper[42305:20332866] Connection Invalid error for service com.apple.hiservices-xpcservice.
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+1795559335915	Marionette	INFO	Listening on port 2839
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+console.error: (new NotFoundError("Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump", "resource://services-settings/Attachments.sys.mjs", 48))
+console.warn: "Unable to find the attachment for" "fa0fc42c-d91d-fca7-34eb-806ff46062dc"
+console.error: RSLoader: 
+  Failed to retrieve recipes from Remote Settings
+  Message: Error: Could not sync nimbus-desktop-experiments: get-exception
+  Stack:
+    RemoteSettingsSyncError@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:1559:5
+getRecipesFromCollection@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:813:13
+
+console.error: RSLoader: 
+  Failed to retrieve recipes from Remote Settings
+  Message: Error: Could not sync nimbus-desktop-experiments: get-exception
+  Stack:
+    RemoteSettingsSyncError@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:1559:5
+getRecipesFromCollection@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:813:13
+
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+sandbox_extension_issue_file_to_process failed for /Users/kartikayagupta/zspace/allocators/firefox/obj-libpas/dist/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+ALLOC_MICRO_RESULT {"tag":"resources-libpas-r6","steps":900,"seed":1,"scale":1,"wallMs":13782,"workMs":8662,"opMs":{"js_strings":400,"js_json_clone":398,"js_compile":425,"dom_create":733,"dom_innerhtml":328,"dom_mutate":194,"style_parse":1279,"style_cssom":584,"style_restyle":1632,"layout_text":1913,"gfx_canvas":539,"gfx_svg":146,"gfx_layers":91},"sink":true}
+1795559350525	Marionette	INFO	Stopped listening on port 2839

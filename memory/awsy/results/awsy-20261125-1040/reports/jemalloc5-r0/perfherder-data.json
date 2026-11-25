@@ -1,0 +1,337 @@
+{
+  "framework": {
+    "name": "awsy"
+  },
+  "suites": [
+    {
+      "name": "Resident Memory",
+      "subtests": [
+        {
+          "name": "Fresh start",
+          "value": 694468608,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Fresh start [+30s]",
+          "value": 758693888,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open",
+          "value": 6274547712,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s]",
+          "value": 6222594048,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s, forced GC]",
+          "value": 5482708992,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed extra processes",
+          "value": 1104855040,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed",
+          "value": 1100742656,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s]",
+          "value": 884277248,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s, forced GC]",
+          "value": 878690304,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        }
+      ],
+      "lowerIsBetter": true,
+      "unit": "bytes",
+      "extraOptions": [
+        "tp6",
+        "fission"
+      ],
+      "value": 1679957080.1906686
+    },
+    {
+      "name": "Explicit Memory",
+      "subtests": [
+        {
+          "name": "Fresh start",
+          "value": 383744114,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Fresh start [+30s]",
+          "value": 326232642,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open",
+          "value": 3907520066,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s]",
+          "value": 3849491234,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s, forced GC]",
+          "value": 3250098946,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed extra processes",
+          "value": 549651586,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed",
+          "value": 539082586,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s]",
+          "value": 381054018,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s, forced GC]",
+          "value": 371988026,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        }
+      ],
+      "lowerIsBetter": true,
+      "unit": "bytes",
+      "extraOptions": [
+        "tp6",
+        "fission"
+      ],
+      "value": 859899346.3837976
+    },
+    {
+      "name": "Heap Unclassified",
+      "subtests": [
+        {
+          "name": "Fresh start",
+          "value": 185630098,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Fresh start [+30s]",
+          "value": 170596722,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open",
+          "value": 1220807567,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s]",
+          "value": 1193164727,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s, forced GC]",
+          "value": 1105627527,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed extra processes",
+          "value": 335581667,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed",
+          "value": 326363915,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s]",
+          "value": 224899963,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s, forced GC]",
+          "value": 219515363,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        }
+      ],
+      "lowerIsBetter": true,
+      "unit": "bytes",
+      "extraOptions": [
+        "tp6",
+        "fission"
+      ],
+      "value": 402256764.29168934
+    },
+    {
+      "name": "JS",
+      "subtests": [
+        {
+          "name": "Fresh start",
+          "value": 121464312,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Fresh start [+30s]",
+          "value": 81009112,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open",
+          "value": 1566559184,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s]",
+          "value": 1541490336,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s, forced GC]",
+          "value": 1447745232,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed extra processes",
+          "value": 89092480,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed",
+          "value": 89242680,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s]",
+          "value": 66729760,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s, forced GC]",
+          "value": 66030136,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        }
+      ],
+      "lowerIsBetter": true,
+      "unit": "bytes",
+      "extraOptions": [
+        "tp6",
+        "fission"
+      ],
+      "value": 219956867.21096858
+    },
+    {
+      "name": "Images",
+      "subtests": [
+        {
+          "name": "Fresh start",
+          "value": 897584,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Fresh start [+30s]",
+          "value": 823904,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open",
+          "value": 56463408,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s]",
+          "value": 56419184,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "After tabs open [+30s, forced GC]",
+          "value": 56418272,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed extra processes",
+          "value": 2224368,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed",
+          "value": 2224368,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s]",
+          "value": 1792112,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        },
+        {
+          "name": "Tabs closed [+30s, forced GC]",
+          "value": 1657424,
+          "lowerIsBetter": true,
+          "unit": "bytes"
+        }
+      ],
+      "lowerIsBetter": true,
+      "unit": "bytes",
+      "extraOptions": [
+        "tp6",
+        "fission"
+      ],
+      "value": 5000060.624416211
+    }
+  ]
+}

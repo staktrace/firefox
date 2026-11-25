@@ -1,0 +1,602 @@
+ 0:00.00 INFO Using workspace for temporary data: "/Users/kartikayagupta/zspace/allocators/firefox"
+ 0:00.00 mozversion INFO application_buildid: 20261125122522
+ 0:00.00 mozversion INFO application_display_name: Nightly
+ 0:00.00 mozversion INFO application_id: {ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+ 0:00.00 mozversion INFO application_name: Firefox
+ 0:00.00 mozversion INFO application_remotingname: firefox-default
+ 0:00.00 mozversion INFO application_vendor: Mozilla
+ 0:00.00 mozversion INFO application_version: 162.0a1
+ 0:00.00 mozversion INFO platform_buildid: 20261125122522
+ 0:00.00 mozversion INFO platform_version: 162.0a1
+ 0:00.00 INFO Application command: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/MacOS/firefox -marionette -foreground -profile /var/folders/lb/k777x0y53v35djx_syly12280000gn/T/tmp_s6ip91e.mozrunner
+ 0:02.21 INFO Profile path is /var/folders/lb/k777x0y53v35djx_syly12280000gn/T/tmp_s6ip91e.mozrunner
+ 0:02.21 INFO Starting fixture servers
+ 0:03.03 INFO Fixture server listening on http://127.0.0.1:55036/
+ 0:03.03 INFO Fixture server listening on https://127.0.0.1:55037/
+ 0:03.03 mozversion INFO application_buildid: 20261125122522
+ 0:03.03 mozversion INFO application_display_name: Nightly
+ 0:03.03 mozversion INFO application_id: {ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+ 0:03.03 mozversion INFO application_name: Firefox
+ 0:03.03 mozversion INFO application_remotingname: firefox-default
+ 0:03.03 mozversion INFO application_vendor: Mozilla
+ 0:03.03 mozversion INFO application_version: 162.0a1
+ 0:03.03 mozversion INFO platform_buildid: 20261125122522
+ 0:03.03 mozversion INFO platform_version: 162.0a1
+ 0:03.03 SUITE_START: marionette-test - running 1 tests
+ 0:03.03 TEST_START: testing/awsy/awsy/test_memory_usage.py TestMemoryUsage.test_open_tabs
+ 0:03.04 INFO areweslimyet run by 0 pages, 1 iterations, 15 perTabPause, 30 settleWaitTime
+ 0:03.04 INFO setting up
+ 0:03.04 mozproxy INFO mozproxy_dir used for mitmproxy downloads and exe files: /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy
+ 0:03.04 mozproxy INFO Playback tool: mitmproxy
+ 0:03.04 mozproxy INFO Playback tool version: 5.1.1
+ 0:03.04 mozproxy INFO mitmproxy binary already exists. Skipping download
+ 0:03.04 mozproxy INFO downloading mitmproxy pageset
+ 0:03.40 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-amazon.zip to recording list
+ 0:03.40 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.40 mozproxy INFO Convert zip recording to new format
+ 0:03.40 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-amazon.json to netlocs.json file
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-amazon.json to metadata.json file
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-amazon.mp to dump.mp file
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-amazon.png to screenshot.png file
+ 0:03.40 mozproxy INFO Old file type! Not confirming content!
+ 0:03.40 mozproxy INFO Loaded recoording generated on 2020-07-13 14:13:29.205904
+ 0:03.40 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-bing-search.zip to recording list
+ 0:03.40 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.40 mozproxy INFO Convert zip recording to new format
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-bing-search.mp to dump.mp file
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-bing-search.json to metadata.json file
+ 0:03.40 mozproxy INFO Renaming mitm5-linux-firefox-bing-search.png to screenshot.png file
+ 0:03.40 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-bing-search.json to netlocs.json file
+ 0:03.40 mozproxy INFO Old file type! Not confirming content!
+ 0:03.40 mozproxy INFO Loaded recoording generated on 2020-06-15 13:14:06.469700
+ 0:03.40 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-buzzfeed.zip to recording list
+ 0:03.40 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.40 mozproxy INFO Loaded recoording generated on 2021-03-24 13:21:13.527198
+ 0:03.40 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-cnn.zip to recording list
+ 0:03.40 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.41 mozproxy INFO Loaded recoording generated on 2021-03-24 12:39:20.511014
+ 0:03.41 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-ebay.zip to recording list
+ 0:03.41 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.42 mozproxy INFO Convert zip recording to new format
+ 0:03.42 mozproxy INFO Renaming mitm5-linux-firefox-ebay.png to screenshot.png file
+ 0:03.42 mozproxy INFO Renaming mitm5-linux-firefox-ebay.json to metadata.json file
+ 0:03.42 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-ebay.json to netlocs.json file
+ 0:03.42 mozproxy INFO Renaming mitm5-linux-firefox-ebay.mp to dump.mp file
+ 0:03.42 mozproxy INFO Old file type! Not confirming content!
+ 0:03.42 mozproxy INFO Loaded recoording generated on 2020-06-16 14:11:03.693472
+ 0:03.42 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-espn.zip to recording list
+ 0:03.42 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.42 mozproxy INFO Loaded recoording generated on 2021-03-25 18:22:41.464511
+ 0:03.42 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-expedia.zip to recording list
+ 0:03.42 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.42 mozproxy INFO Loaded recoording generated on 2021-03-24 12:58:10.432236
+ 0:03.42 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-facebook-redesign.zip to recording list
+ 0:03.42 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.43 mozproxy INFO Convert zip recording to new format
+ 0:03.43 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-facebook-redesign.json to netlocs.json file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-facebook-redesign.json to metadata.json file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-facebook-redesign.png to screenshot.png file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-facebook-redesign.mp to dump.mp file
+ 0:03.43 mozproxy INFO Old file type! Not confirming content!
+ 0:03.43 mozproxy INFO Loaded recoording generated on 2020-06-29 15:47:45.514173
+ 0:03.43 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-fandom.zip to recording list
+ 0:03.43 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.43 mozproxy INFO Convert zip recording to new format
+ 0:03.43 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-fandom.json to netlocs.json file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-fandom.mp to dump.mp file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-fandom.json to metadata.json file
+ 0:03.43 mozproxy INFO Renaming mitm5-linux-firefox-fandom.png to screenshot.png file
+ 0:03.43 mozproxy INFO Old file type! Not confirming content!
+ 0:03.43 mozproxy INFO Loaded recoording generated on 2020-06-09 17:37:54.134158
+ 0:03.43 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-docs.zip to recording list
+ 0:03.43 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.50 mozproxy INFO Convert zip recording to new format
+ 0:03.50 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-google-docs.json to netlocs.json file
+ 0:03.50 mozproxy INFO Renaming mitm5-linux-firefox-google-docs.mp to dump.mp file
+ 0:03.50 mozproxy INFO Renaming mitm5-linux-firefox-google-docs.json to metadata.json file
+ 0:03.50 mozproxy INFO Renaming mitm5-linux-firefox-google-docs.png to screenshot.png file
+ 0:03.50 mozproxy INFO Old file type! Not confirming content!
+ 0:03.50 mozproxy INFO Loaded recoording generated on 2020-06-24 13:20:04.978766
+ 0:03.50 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-mail.zip to recording list
+ 0:03.50 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.50 mozproxy INFO Convert zip recording to new format
+ 0:03.50 mozproxy INFO Renaming mitm5-linux-firefox-google-mail.json to metadata.json file
+ 0:03.50 mozproxy INFO Renaming mitm5-linux-firefox-google-mail.png to screenshot.png file
+ 0:03.51 mozproxy INFO Renaming mitm5-linux-firefox-google-mail.mp to dump.mp file
+ 0:03.51 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-google-mail.json to netlocs.json file
+ 0:03.51 mozproxy INFO Old file type! Not confirming content!
+ 0:03.51 mozproxy INFO Loaded recoording generated on 2020-07-01 11:17:15.481552
+ 0:03.51 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-search.zip to recording list
+ 0:03.51 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.51 mozproxy INFO Convert zip recording to new format
+ 0:03.51 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-google-search.json to netlocs.json file
+ 0:03.51 mozproxy INFO Renaming mitm5-linux-firefox-google-search.png to screenshot.png file
+ 0:03.51 mozproxy INFO Renaming mitm5-linux-firefox-google-search.mp to dump.mp file
+ 0:03.51 mozproxy INFO Renaming mitm5-linux-firefox-google-search.json to metadata.json file
+ 0:03.51 mozproxy INFO Old file type! Not confirming content!
+ 0:03.51 mozproxy INFO Loaded recoording generated on 2020-06-26 12:08:23.505533
+ 0:03.51 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-slides.zip to recording list
+ 0:03.51 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.53 mozproxy INFO Convert zip recording to new format
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-google-slides.png to screenshot.png file
+ 0:03.53 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-google-slides.json to netlocs.json file
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-google-slides.mp to dump.mp file
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-google-slides.json to metadata.json file
+ 0:03.53 mozproxy INFO Old file type! Not confirming content!
+ 0:03.53 mozproxy INFO Loaded recoording generated on 2020-08-12 12:40:09.109758
+ 0:03.53 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-imdb.zip to recording list
+ 0:03.53 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.53 mozproxy INFO Convert zip recording to new format
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-imdb.mp to dump.mp file
+ 0:03.53 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-imdb.json to netlocs.json file
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-imdb.json to metadata.json file
+ 0:03.53 mozproxy INFO Renaming mitm5-linux-firefox-imdb.png to screenshot.png file
+ 0:03.53 mozproxy INFO Old file type! Not confirming content!
+ 0:03.53 mozproxy INFO Loaded recoording generated on 2020-06-16 14:15:57.425029
+ 0:03.53 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-imgur.zip to recording list
+ 0:03.53 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.55 mozproxy INFO Convert zip recording to new format
+ 0:03.55 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-imgur.json to netlocs.json file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-imgur.png to screenshot.png file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-imgur.mp to dump.mp file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-imgur.json to metadata.json file
+ 0:03.55 mozproxy INFO Old file type! Not confirming content!
+ 0:03.55 mozproxy INFO Loaded recoording generated on 2020-06-09 17:39:42.374926
+ 0:03.55 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-instagram.zip to recording list
+ 0:03.55 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.55 mozproxy INFO Convert zip recording to new format
+ 0:03.55 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-instagram.json to netlocs.json file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-instagram.mp to dump.mp file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-instagram.png to screenshot.png file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-instagram.json to metadata.json file
+ 0:03.55 mozproxy INFO Old file type! Not confirming content!
+ 0:03.55 mozproxy INFO Loaded recoording generated on 2020-06-16 15:25:10.468384
+ 0:03.55 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-linkedin.zip to recording list
+ 0:03.55 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.55 mozproxy INFO Convert zip recording to new format
+ 0:03.55 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-linkedin.json to netlocs.json file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-linkedin.mp to dump.mp file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-linkedin.json to metadata.json file
+ 0:03.55 mozproxy INFO Renaming mitm5-linux-firefox-linkedin.png to screenshot.png file
+ 0:03.55 mozproxy INFO Old file type! Not confirming content!
+ 0:03.55 mozproxy INFO Loaded recoording generated on 2020-06-16 16:16:57.278045
+ 0:03.55 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-live-office.zip to recording list
+ 0:03.55 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.56 mozproxy INFO Convert zip recording to new format
+ 0:03.56 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-live-office.json to netlocs.json file
+ 0:03.56 mozproxy INFO Renaming mitm5-linux-firefox-live-office.mp to dump.mp file
+ 0:03.56 mozproxy INFO Renaming mitm5-linux-firefox-live-office.png to screenshot.png file
+ 0:03.56 mozproxy INFO Renaming mitm5-linux-firefox-live-office.json to metadata.json file
+ 0:03.56 mozproxy INFO Old file type! Not confirming content!
+ 0:03.56 mozproxy INFO Loaded recoording generated on 2020-08-06 11:25:12.689169
+ 0:03.56 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-live.zip to recording list
+ 0:03.56 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.58 mozproxy INFO Convert zip recording to new format
+ 0:03.58 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-live.json to netlocs.json file
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-live.mp to dump.mp file
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-live.png to screenshot.png file
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-live.json to metadata.json file
+ 0:03.58 mozproxy INFO Old file type! Not confirming content!
+ 0:03.58 mozproxy INFO Loaded recoording generated on 2020-08-27 12:03:27.677314
+ 0:03.58 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-microsoft.zip to recording list
+ 0:03.58 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.58 mozproxy INFO Convert zip recording to new format
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-microsoft.png to screenshot.png file
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-microsoft.json to metadata.json file
+ 0:03.58 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-microsoft.json to netlocs.json file
+ 0:03.58 mozproxy INFO Renaming mitm5-linux-firefox-microsoft.mp to dump.mp file
+ 0:03.58 mozproxy INFO Old file type! Not confirming content!
+ 0:03.58 mozproxy INFO Loaded recoording generated on 2020-06-15 12:52:19.853959
+ 0:03.58 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-netflix.zip to recording list
+ 0:03.58 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.61 mozproxy INFO Convert zip recording to new format
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-netflix.png to screenshot.png file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-netflix.mp to dump.mp file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-netflix.json to metadata.json file
+ 0:03.61 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-netflix.json to netlocs.json file
+ 0:03.61 mozproxy INFO Old file type! Not confirming content!
+ 0:03.61 mozproxy INFO Loaded recoording generated on 2020-08-06 11:09:28.573479
+ 0:03.61 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-nytimes.zip to recording list
+ 0:03.61 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.61 mozproxy INFO Loaded recoording generated on 2021-03-25 17:54:53.964960
+ 0:03.61 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-paypal.zip to recording list
+ 0:03.61 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.61 mozproxy INFO Convert zip recording to new format
+ 0:03.61 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-paypal.json to netlocs.json file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-paypal.mp to dump.mp file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-paypal.json to metadata.json file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-paypal.png to screenshot.png file
+ 0:03.61 mozproxy INFO Old file type! Not confirming content!
+ 0:03.61 mozproxy INFO Loaded recoording generated on 2020-08-03 12:47:23.086623
+ 0:03.61 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-pettay.zip to recording list
+ 0:03.61 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.61 mozproxy INFO Convert zip recording to new format
+ 0:03.61 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-pettay.json to netlocs.json file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-pettay.png to screenshot.png file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-pettay.json to metadata.json file
+ 0:03.61 mozproxy INFO Renaming mitm5-linux-firefox-pettay.mp to dump.mp file
+ 0:03.61 mozproxy INFO Old file type! Not confirming content!
+ 0:03.61 mozproxy INFO Loaded recoording generated on 2021-04-22 11:45:57.488130
+ 0:03.61 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-pinterest.zip to recording list
+ 0:03.61 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.62 mozproxy INFO Convert zip recording to new format
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-pinterest.json to metadata.json file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-pinterest.png to screenshot.png file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-pinterest.mp to dump.mp file
+ 0:03.62 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-pinterest.json to netlocs.json file
+ 0:03.62 mozproxy INFO Old file type! Not confirming content!
+ 0:03.62 mozproxy INFO Loaded recoording generated on 2020-08-07 14:06:58.575762
+ 0:03.62 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-reddit.zip to recording list
+ 0:03.62 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.62 mozproxy INFO Convert zip recording to new format
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-reddit.json to metadata.json file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-reddit.png to screenshot.png file
+ 0:03.62 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-reddit.json to netlocs.json file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-reddit.mp to dump.mp file
+ 0:03.62 mozproxy INFO Old file type! Not confirming content!
+ 0:03.62 mozproxy INFO Loaded recoording generated on 2020-06-15 12:54:06.346356
+ 0:03.62 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-tumblr.zip to recording list
+ 0:03.62 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.62 mozproxy INFO Convert zip recording to new format
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-tumblr.mp to dump.mp file
+ 0:03.62 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-tumblr.json to netlocs.json file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-tumblr.png to screenshot.png file
+ 0:03.62 mozproxy INFO Renaming mitm5-linux-firefox-tumblr.json to metadata.json file
+ 0:03.63 mozproxy INFO Old file type! Not confirming content!
+ 0:03.63 mozproxy INFO Loaded recoording generated on 2020-06-16 14:59:28.464513
+ 0:03.63 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-twitch.zip to recording list
+ 0:03.63 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.63 mozproxy INFO Convert zip recording to new format
+ 0:03.63 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-twitch.json to netlocs.json file
+ 0:03.63 mozproxy INFO Renaming mitm5-linux-firefox-twitch.png to screenshot.png file
+ 0:03.63 mozproxy INFO Renaming mitm5-linux-firefox-twitch.mp to dump.mp file
+ 0:03.63 mozproxy INFO Renaming mitm5-linux-firefox-twitch.json to metadata.json file
+ 0:03.63 mozproxy INFO Old file type! Not confirming content!
+ 0:03.63 mozproxy INFO Loaded recoording generated on 2020-06-11 11:04:35.340597
+ 0:03.63 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-twitter.zip to recording list
+ 0:03.63 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.64 mozproxy INFO Convert zip recording to new format
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-twitter.png to screenshot.png file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-twitter.mp to dump.mp file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-twitter.json to metadata.json file
+ 0:03.64 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-twitter.json to netlocs.json file
+ 0:03.64 mozproxy INFO Old file type! Not confirming content!
+ 0:03.64 mozproxy INFO Loaded recoording generated on 2020-06-09 17:41:30.694438
+ 0:03.64 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-wikia.zip to recording list
+ 0:03.64 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.64 mozproxy INFO Loaded recoording generated on 2021-03-24 12:53:29.187272
+ 0:03.64 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-wikipedia.zip to recording list
+ 0:03.64 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.64 mozproxy INFO Convert zip recording to new format
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-wikipedia.mp to dump.mp file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-wikipedia.png to screenshot.png file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-wikipedia.json to metadata.json file
+ 0:03.64 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-wikipedia.json to netlocs.json file
+ 0:03.64 mozproxy INFO Old file type! Not confirming content!
+ 0:03.64 mozproxy INFO Loaded recoording generated on 2020-06-16 13:24:43.505343
+ 0:03.64 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-yahoo-mail.zip to recording list
+ 0:03.64 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.64 mozproxy INFO Convert zip recording to new format
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-yahoo-mail.png to screenshot.png file
+ 0:03.64 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-yahoo-mail.json to netlocs.json file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-yahoo-mail.json to metadata.json file
+ 0:03.64 mozproxy INFO Renaming mitm5-linux-firefox-yahoo-mail.mp to dump.mp file
+ 0:03.64 mozproxy INFO Old file type! Not confirming content!
+ 0:03.64 mozproxy INFO Loaded recoording generated on 2020-06-29 11:29:37.579358
+ 0:03.64 mozproxy INFO Adding /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-youtube.zip to recording list
+ 0:03.64 mozproxy INFO The recording dir already exists! Resetting the existing dir and data.
+ 0:03.65 mozproxy INFO Convert zip recording to new format
+ 0:03.65 mozproxy INFO Renaming mitm_netlocs_mitm5-linux-firefox-youtube.json to netlocs.json file
+ 0:03.65 mozproxy INFO Renaming mitm5-linux-firefox-youtube.json to metadata.json file
+ 0:03.65 mozproxy INFO Renaming mitm5-linux-firefox-youtube.png to screenshot.png file
+ 0:03.65 mozproxy INFO Renaming mitm5-linux-firefox-youtube.mp to dump.mp file
+ 0:03.65 mozproxy INFO Old file type! Not confirming content!
+ 0:03.65 mozproxy INFO Loaded recoording generated on 2020-08-14 16:49:47.809933
+ 0:03.65 mozproxy INFO mitmdump path: /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitmdump-5.1.1/mitmdump
+ 0:03.65 mozproxy INFO browser path: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/MacOS/firefox
+ 0:03.65 mozproxy INFO Starting mitmproxy playback using env path: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/MacOS:/Users/kartikayagupta/.mozbuild/srcdirs/firefox-9234019a3202/_virtualenvs/common/bin:/Users/kartikayagupta/.mozbuild/srcdirs/firefox-9234019a3202/_virtualenvs/mach/bin:/Users/kartikayagupta/.mozbuild/bin:/Users/kartikayagupta/.cargo/bin:/Users/kartikayagupta/.local/bin:/Users/kartikayagupta/bin:/Users/kartikayagupta/bin/slalom:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Users/kartikayagupta/zspace/moz-scripts:/Users/kartikayagupta/.mozbuild/android-sdk-macosx/platform-tools
+ 0:03.65 mozproxy INFO Starting mitmproxy playback using command: /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitmdump-5.1.1/mitmdump --listen-host 127.0.0.1 --listen-port 55039 --set upstream_cert=false --set upload_dir=/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html --set websocket=false --set server_replay_files=/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-amazon/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-bing-search/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-buzzfeed/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-cnn/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-ebay/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-espn/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-expedia/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-facebook-redesign/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-fandom/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-docs/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-mail/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-search/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-google-slides/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-imdb/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-imgur/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-instagram/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-linkedin/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-live-office/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-live/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-microsoft/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-netflix/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-nytimes/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-paypal/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-pettay/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-pinterest/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-reddit/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-tumblr/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-twitch/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-twitter/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-wikia/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-wikipedia/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-yahoo-mail/dump.mp,/Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/testing/mozproxy/mitm5-linux-firefox-youtube/dump.mp --scripts /Users/kartikayagupta/zspace/allocators/firefox/testing/mozbase/mozproxy/mozproxy/backends/mitm/scripts/alternate-server-replay.py
+ 0:03.65 mozproxy INFO mitmproxy log file: /Users/kartikayagupta/zspace/allocators/firefox/obj-host-opt/_tests/awsy/html/mitmproxy.log
+ 0:12.19 mozproxy INFO Mitmproxy playback successfully started on 127.0.0.1:55039 as pid 36290
+ 0:12.19 mozproxy INFO Installing mitmproxy CA certificate into Firefox
+ 0:12.19 mozproxy INFO creating folder: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/Resources/distribution
+ 0:12.19 mozproxy INFO writing: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/Resources/distribution/policies.json
+ 0:12.19 mozproxy INFO reading: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/Resources/distribution/policies.json
+ 0:12.19 mozproxy INFO Firefox policies file contents:
+ 0:12.19 mozproxy INFO {
+  "policies": {
+    "Certificates": {
+      "Install": ["/Users/kartikayagupta/.mitmproxy/mitmproxy-ca-cert.cer"]
+    },
+    "Proxy": {
+      "Mode": "manual",
+      "HTTPProxy": "127.0.0.1:55039",
+      "SSLProxy": "127.0.0.1:55039",
+      "Passthrough": "127.0.0.1",
+      "Locked": true
+    }
+  }
+}
+ 0:12.19 mozproxy INFO Verified mitmproxy CA certificate is installed in Firefox
+ 0:12.24 INFO Application command: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/MacOS/firefox -marionette -foreground -profile /var/folders/lb/k777x0y53v35djx_syly12280000gn/T/tmp_s6ip91e.mozrunner
+ 0:13.39 INFO areweslimyet run by 0 pages, 1 iterations, 15 perTabPause, 30 settleWaitTime
+ 0:13.39 INFO done setting up!
+ 0:13.39 INFO starting checkpoint Start...
+ 0:13.43 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-Start-0.json.gz
+ 0:43.43 INFO starting checkpoint StartSettled...
+ 0:43.48 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-StartSettled-0.json.gz
+ 0:43.48 INFO loading https://www.amazon.com/s?k=laptop&ref=nb_sb_noss_1
+ 0:44.28 INFO loaded!
+ 0:59.33 INFO switching to tab
+ 0:59.33 INFO switched to tab
+ 0:59.33 INFO loading https://www.bing.com/search?q=barack+obama
+ 0:59.60 INFO loaded!
+ 1:14.64 INFO switching to tab
+ 1:14.64 INFO switched to tab
+ 1:14.64 INFO loading https://www.buzzfeed.com/
+ 1:15.97 INFO loaded!
+ 1:31.02 INFO switching to tab
+ 1:31.02 INFO switched to tab
+ 1:31.02 INFO loading https://www.cnn.com/2021/03/22/weather/climate-change-warm-waters-lake-michigan/index.html
+ 1:32.15 INFO loaded!
+ 1:47.19 INFO switching to tab
+ 1:47.19 INFO switched to tab
+ 1:47.19 INFO loading https://www.ebay.com/
+ 1:47.77 INFO loaded!
+ 2:02.81 INFO switching to tab
+ 2:02.81 INFO switched to tab
+ 2:02.81 INFO loading http://www.espn.com/nba/story/_/page/allstarweekend25788027/the-comparison-lebron-james-michael-jordan-their-own-words
+ 2:04.70 INFO loaded!
+ 2:19.74 INFO switching to tab
+ 2:19.74 INFO switched to tab
+ 2:19.74 INFO loading https://expedia.com/Hotel-Search?destination=New+York%2C+New+York&latLong=40.756680%2C-73.986470&regionId=178293&startDate=&endDate=&rooms=1&_xpid=11905%7C1&adults=2
+ 2:21.06 INFO loaded!
+ 2:36.10 INFO switching to tab
+ 2:36.10 INFO switched to tab
+ 2:36.10 INFO loading https://www.facebook.com
+ 2:36.88 INFO loaded!
+ 2:51.92 INFO switching to tab
+ 2:51.92 INFO switched to tab
+ 2:51.92 INFO loading https://www.fandom.com/articles/fallout-76-will-live-and-die-on-the-creativity-of-its-playerbase
+ 2:52.67 INFO loaded!
+ 3:07.70 INFO switching to tab
+ 3:07.70 INFO switched to tab
+ 3:07.70 INFO loading https://docs.google.com/document/d/1US-07msg12slQtI_xchzYxcKlTs6Fp7WqIc6W5GK5M8/edit?usp=sharing
+ 3:08.58 INFO loaded!
+ 3:23.61 INFO switching to tab
+ 3:23.61 INFO switched to tab
+ 3:23.61 INFO loading https://mail.google.com/
+ 3:24.25 INFO loaded!
+ 3:39.30 INFO switching to tab
+ 3:39.30 INFO switched to tab
+ 3:39.30 INFO loading https://www.google.com/search?hl=en&q=barack+obama&cad=h
+ 3:40.09 INFO loaded!
+ 3:55.14 INFO switching to tab
+ 3:55.14 INFO switched to tab
+ 3:55.14 INFO loading https://docs.google.com/presentation/d/1Ici0ceWwpFvmIb3EmKeWSq_vAQdmmdFcWqaiLqUkJng/edit?usp=sharing
+ 3:56.81 INFO loaded!
+ 4:11.85 INFO switching to tab
+ 4:11.85 INFO switched to tab
+ 4:11.85 INFO loading https://www.imdb.com/title/tt0084967/?ref_=nv_sr_2
+ 4:12.67 INFO loaded!
+ 4:27.71 INFO switching to tab
+ 4:27.71 INFO switched to tab
+ 4:27.71 INFO loading https://imgur.com/gallery/m5tYJL6
+ 4:28.87 INFO loaded!
+ 4:43.92 INFO switching to tab
+ 4:43.92 INFO switched to tab
+ 4:43.92 INFO loading https://www.instagram.com/
+ 4:44.65 INFO loaded!
+ 4:59.69 INFO switching to tab
+ 4:59.69 INFO switched to tab
+ 4:59.70 INFO loading https://www.linkedin.com/in/thommy-harris-hk-385723106/
+ 5:00.83 INFO loaded!
+ 5:15.87 INFO switching to tab
+ 5:15.87 INFO switched to tab
+ 5:15.87 INFO loading https://www.microsoft.com/en-us/
+ 5:16.35 INFO loaded!
+ 5:31.39 INFO switching to tab
+ 5:31.39 INFO switched to tab
+ 5:31.39 INFO loading https://www.netflix.com/title/80117263
+ 5:31.61 INFO loaded!
+ 5:46.66 INFO switching to tab
+ 5:46.66 INFO switched to tab
+ 5:46.66 INFO loading https://www.nytimes.com/2020/02/19/opinion/surprise-medical-bill.html
+ 5:47.62 INFO loaded!
+ 6:02.66 INFO switching to tab
+ 6:02.66 INFO switched to tab
+ 6:02.66 INFO loading https://office.live.com/start/Word.aspx?omkt=en-US
+ 6:04.11 INFO loaded!
+ 6:19.16 INFO switching to tab
+ 6:19.16 INFO switched to tab
+ 6:19.16 INFO loading https://outlook.live.com/mail/inbox
+ 6:19.84 INFO loaded!
+ 6:34.87 INFO switching to tab
+ 6:34.87 INFO switched to tab
+ 6:34.87 INFO loading https://www.paypal.com/myaccount/summary/
+ 6:35.43 INFO loaded!
+ 6:50.47 INFO switching to tab
+ 6:50.47 INFO switched to tab
+ 6:50.47 INFO loading https://pinterest.com/
+ 6:51.47 INFO loaded!
+ 7:06.51 INFO switching to tab
+ 7:06.51 INFO switched to tab
+ 7:06.51 INFO loading https://www.reddit.com/r/technology/comments/9sqwyh/we_posed_as_100_senators_to_run_ads_on_facebook/
+ 7:07.73 INFO loaded!
+ 7:22.77 INFO switching to tab
+ 7:22.77 INFO switched to tab
+ 7:22.77 INFO loading https://www.tumblr.com/dashboard
+ 7:23.65 INFO loaded!
+ 7:38.69 INFO switching to tab
+ 7:38.69 INFO switched to tab
+ 7:38.69 INFO loading https://www.twitch.tv/videos/326804629
+ 7:39.09 INFO loaded!
+ 7:54.12 INFO switching to tab
+ 7:54.13 INFO switched to tab
+ 7:54.13 INFO loading https://twitter.com/BarackObama
+ 7:55.16 INFO loaded!
+ 8:10.19 INFO switching to tab
+ 8:10.19 INFO switched to tab
+ 8:10.19 INFO loading https://marvel.fandom.com/wiki/Black_Panther
+ 8:11.98 INFO loaded!
+ 8:27.02 INFO switching to tab
+ 8:27.02 INFO switched to tab
+ 8:27.02 INFO loading https://en.wikipedia.org/wiki/Barack_Obama
+ 8:27.68 INFO loaded!
+ 8:42.69 INFO switching to tab
+ 8:42.70 INFO switched to tab
+ 8:42.71 INFO loading https://mail.yahoo.com/
+ 8:43.85 INFO loaded!
+ 8:58.86 INFO switching to tab
+ 8:58.87 INFO switched to tab
+ 8:58.87 INFO loading https://www.youtube.com
+ 8:59.76 INFO loaded!
+ 9:14.77 INFO starting checkpoint TabsOpen...
+ 9:14.94 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsOpen-0.json.gz
+ 9:44.95 INFO starting checkpoint TabsOpenSettled...
+ 9:45.13 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsOpenSettled-0.json.gz
+ 9:45.13 INFO starting checkpoint TabsOpenForceGC...
+ 9:45.56 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsOpenForceGC-0.json.gz
+ 9:45.56 INFO closing window: 69b8594e-e6c2-45dc-a517-e80ff4045985
+ 9:45.58 INFO closing window: f990229e-8b85-4975-8ca8-c017250b775a
+ 9:45.59 INFO closing window: 898c75a8-9018-4265-816e-c454e927181f
+ 9:45.61 INFO closing window: a882c738-b042-40c1-a6e1-1f0f285dedd4
+ 9:45.63 INFO closing window: 65602b74-71f4-4cce-a699-4cef14f045b1
+ 9:45.64 INFO closing window: 50deb00c-c938-4d87-a91d-ebc8b68b98c3
+ 9:45.66 INFO closing window: a9dd9a27-474b-4783-8b23-2c300ce43da6
+ 9:45.68 INFO closing window: 2fbb233e-757c-4361-85de-04ee9bd58e7f
+ 9:45.69 INFO closing window: e52890dc-1a23-4cd1-9264-4c9c36a18fb6
+ 9:45.72 INFO closing window: 8cb7089c-78a0-4c8c-861b-ff93b210f738
+ 9:45.75 INFO closing window: 79a8f328-857f-4ec4-bbe9-b45d16a06705
+ 9:45.77 INFO closing window: a40bb2ce-394b-43a6-8882-01e1681881aa
+ 9:45.80 INFO closing window: a3953c75-fc6b-4050-b398-230a714b2b4f
+ 9:45.82 INFO closing window: 22dca232-e46f-482f-a203-4c07dfb9024e
+ 9:45.84 INFO closing window: 26356966-e2bf-4072-9f45-f8c976e013bd
+ 9:45.86 INFO closing window: a4124e9d-eb65-4cfe-a178-b6fa51e87a85
+ 9:45.88 INFO closing window: 660090e6-69c5-4255-a0d4-2dac60bfccac
+ 9:45.89 INFO closing window: 695fc9aa-5fcb-403d-a1a2-102689985878
+ 9:45.90 INFO closing window: f96c613b-a1b2-4b9a-b943-27d5a16d657c
+ 9:45.92 INFO closing window: e4043163-9637-48da-830b-e6ca42eee30f
+ 9:45.94 INFO closing window: 8c8bd62e-1d28-4f16-b086-cc40c813de87
+ 9:45.95 INFO closing window: 8b0a8d22-db85-4d99-b4f7-8326192a7157
+ 9:45.96 INFO closing window: 4719d989-0b87-440f-a9f9-21262e3f1929
+ 9:46.01 INFO closing window: 2a80a3cd-3a4b-4103-b929-ce68d59500c8
+ 9:46.02 INFO closing window: 0664bae9-4a53-4793-b9b3-1109f8da647d
+ 9:46.04 INFO closing window: f1b46aa9-6a16-4eb2-87f0-402c28fbcd13
+ 9:46.05 INFO closing window: 1f80ef0d-e24d-4543-9ad6-1467ac687e57
+ 9:46.07 INFO closing window: 8ee8ba47-21c3-4e5d-8215-f5ea1a7fc5db
+ 9:46.08 INFO closing window: a1f04c5c-71f6-4e87-90a0-13dbe7e4b651
+ 9:46.09 INFO navigating to about:blank
+ 9:46.17 INFO navigated to about:blank
+ 9:46.17 INFO starting checkpoint TabsClosedExtraProcesses...
+ 9:46.22 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsClosedExtraProcesses-0.json.gz
+ 9:46.22 INFO closing preloaded browser
+ 9:46.22 INFO starting checkpoint TabsClosed...
+ 9:46.25 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsClosed-0.json.gz
+10:16.26 INFO starting checkpoint TabsClosedSettled...
+10:16.32 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsClosedSettled-0.json.gz
+10:16.32 INFO starting checkpoint TabsClosedForceGC...
+10:16.41 INFO checkpoint created, stored in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0/memory-report-TabsClosedForceGC-0.json.gz
+10:16.41 INFO setting results
+10:16.41 INFO tearing down!
+10:16.41 mozproxy INFO MitmproxyDesktop stop!!
+10:16.41 mozproxy INFO Mitmproxy stop!!
+10:16.41 mozproxy INFO Stopping mitmproxy playback, killing process 36290
+10:16.90 mozproxy INFO Successfully killed the mitmproxy playback process
+10:16.90 mozproxy INFO Turning off the browser proxy
+10:16.90 mozproxy INFO writing: /Users/kartikayagupta/zspace/allocators/firefox/obj-system-malloc/dist/Nightly.app/Contents/Resources/distribution/policies.json
+10:16.90 INFO processing data in /Users/kartikayagupta/zspace/allocators/firefox/memory/awsy/results/awsy-20261125-1230/reports/system-malloc-r0!
+10:17.16 TEST_END: ERROR, expected PASS - AssertionError
+Traceback (most recent call last):
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/marionette/harness/marionette_harness/marionette_test/testcases.py", line 225, in run
+    self.tearDown()
+    ~~~~~~~~~~~~~^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/test_memory_usage.py", line 119, in tearDown
+    AwsyTestCase.tearDown(self)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/awsy_test_case.py", line 103, in tearDown
+    perf_blob = process_perf_data.create_perf_data(
+        self._resultsDir,
+    ...<2 lines>...
+        self.perf_extra_opts(),
+    )
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/process_perf_data.py", line 188, in create_perf_data
+    create_suite(
+    ~~~~~~~~~~~~^
+        suite["name"],
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        extra_opts,
+        ^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/process_perf_data.py", line 136, in create_suite
+    totals = parse_about_memory.calculate_memory_report_values(
+        memory_report_path, node, name_filter
+    )
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 119, in calculate_memory_report_values
+    totals = path_total(data, data_point_path)
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 89, in path_total
+    path_totals[k] += heap_unclassified(k)
+                      ~~~~~~~~~~~~~~~~~^^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 62, in heap_unclassified
+    assert process in heap_allocated
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+10:17.16 INFO 
+SUMMARY
+-------
+10:17.16 INFO passed: 0
+10:17.16 INFO failed: 1
+10:17.16 INFO todo: 0
+10:17.16 INFO 
+FAILED TESTS
+-------
+10:17.16 INFO test_memory_usage.py test_memory_usage.TestMemoryUsage.test_open_tabs
+10:17.16 SUITE_END
+
+marionette-test
+~~~~~~~~~~~~~~~
+Ran 1 checks (1 tests)
+Expected results: 0
+Unexpected results: 1
+  test: 1 (1 error)
+
+Error Summary
+-------------
+ERROR testing/awsy/awsy/test_memory_usage.py TestMemoryUsage.test_open_tabs - AssertionError
+Traceback (most recent call last):
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/marionette/harness/marionette_harness/marionette_test/testcases.py", line 225, in run
+    self.tearDown()
+    ~~~~~~~~~~~~~^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/test_memory_usage.py", line 119, in tearDown
+    AwsyTestCase.tearDown(self)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/awsy_test_case.py", line 103, in tearDown
+    perf_blob = process_perf_data.create_perf_data(
+        self._resultsDir,
+    ...<2 lines>...
+        self.perf_extra_opts(),
+    )
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/process_perf_data.py", line 188, in create_perf_data
+    create_suite(
+    ~~~~~~~~~~~~^
+        suite["name"],
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        extra_opts,
+        ^^^^^^^^^^^
+    )
+    ^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/process_perf_data.py", line 136, in create_suite
+    totals = parse_about_memory.calculate_memory_report_values(
+        memory_report_path, node, name_filter
+    )
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 119, in calculate_memory_report_values
+    totals = path_total(data, data_point_path)
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 89, in path_total
+    path_totals[k] += heap_unclassified(k)
+                      ~~~~~~~~~~~~~~~~~^^^
+  File "/Users/kartikayagupta/zspace/allocators/firefox/testing/awsy/awsy/parse_about_memory.py", line 62, in heap_unclassified
+    assert process in heap_allocated
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
